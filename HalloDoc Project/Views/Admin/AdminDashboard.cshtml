@@ -75,12 +75,13 @@
                         </svg>
                     <span class="ms-2  fw-bold">NEW</span>
                 </div>
-                <span class="fw-bold">@Model.New</span>
+                <span class="fw-bold">
+                    @Model.New
+                </span>
             </div>
             <svg class="" fill="#203f9a" height="10px" width="20px" viewBox="0 0 200 100">
                 <polygon points="0,0 100,100 200,0 " />
             </svg>
-
         </div>
 
         <div class="col-lg-2 col-sm-4 col-6 d-flex flex-column status-tab align-items-center" id="status-pending-tab">
@@ -708,6 +709,7 @@
 
 </script>
 <script>
+    var pageNo = 1;
     var dashboardStatus = 0;
     var type_filter = 0;
     var region_filter = 0;
@@ -715,6 +717,14 @@
     var searchTimer;
 
     //Pagination And Backend Filters
+    function loadNextPage(currentpage) {
+        LoadPartialTables(currentpage + 1);
+    }
+
+    function loadPreviousPage(currentpage) {
+        LoadPartialTables(currentpage - 1);
+    }
+
 
     $("#searchBtn").on("keyup", function () {
         var searchValue = $(this).val().toLowerCase();
@@ -722,14 +732,14 @@
 
         clearTimeout(searchTimer);
         searchTimer = setTimeout(function () {
-            LoadPartialTables();
+            LoadPartialTables(pageNo);
         }, 500);
 
     });
 
     $("#RegionFilters").change(function () {
         region_filter = $('option:selected', this).val();
-        LoadPartialTables();
+        LoadPartialTables(pageNo);
     });
 
 
@@ -773,7 +783,7 @@
             $('#status-text').text('(Unpaid)');
             $("#status-text").css("color", "#9966cd");
         }
-        LoadPartialTables();
+        LoadPartialTables(pageNo);
         console.log(dashboardStatus);
     });
 
@@ -803,16 +813,16 @@
             type_filter = 5;
         }
         console.log(type_filter);
-        LoadPartialTables();
+        LoadPartialTables(pageNo);
     });
 
-    function LoadPartialTables() {
+    function LoadPartialTables(pageNo) {
 
         if (dashboardStatus == 1) {
             $.ajax({
                 url: '/Admin/NewTable',
                 type: 'POST',
-                data: { region: region_filter, search: search_filter, type: type_filter },
+                data: { page: pageNo, region: region_filter, search: search_filter, type: type_filter },
                 success: function (data) {
                     $("#partial").html(data);
                 },

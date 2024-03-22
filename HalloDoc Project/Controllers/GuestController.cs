@@ -158,7 +158,7 @@ namespace HalloDoc_Project.Controllers
                     var token = _jwtToken.generateJwtToken(v.Email, "Patient");
                     Response.Cookies.Append("jwt", token);
 
-                    TempData["success"] = "Logged In Successfully";
+                    //TempData["success"] = "Logged In Successfully";
                     return RedirectToAction("PatientDashboard", "Home");
                 }
                 else if(v.Role == "Admin")
@@ -167,7 +167,7 @@ namespace HalloDoc_Project.Controllers
                     var token = _jwtToken.generateJwtToken(v.Email, "Admin");
                     Response.Cookies.Append("jwt", token);
 
-                    TempData["success"] = "Logged In Successfully";
+                    //TempData["success"] = "Logged In Successfully";
                     return RedirectToAction("AdminDashboard", "Admin");
                 }                
             }

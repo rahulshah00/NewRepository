@@ -2,6 +2,8 @@
 using DAL.DataContext;
 using DAL.DataModels;
 using DAL.ViewModels;
+using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -100,6 +102,12 @@ namespace BAL.Repository
         }
         public AdminDashboardViewModel GetNewTable(DashboardFilter filter)
         {
+            int pagesize = 5;
+            int pageNumber = 1;
+            if (filter.page > 0)
+            {
+                pageNumber = filter.page;
+            }
             var adminRequests = (from r in _context.Requests
                                  join rc in _context.Requestclients on r.Requestid equals rc.Requestid
                                  where (filter.RequestTypeFilter == 0 || r.Requesttypeid == filter.RequestTypeFilter)
@@ -116,7 +124,7 @@ namespace BAL.Repository
                                      OtherPhoneNo = r.Phonenumber,
                                      requestType = r.Requesttypeid,
                                      status = r.Status
-                                 }).Where(x => x.status == 1).ToList();
+                                 }).Where(x => x.status == 1).Skip((pageNumber - 1) * pagesize).Take(pagesize).ToList();
             AdminDashboardViewModel model = new AdminDashboardViewModel()
             {
                 adminRequests = adminRequests,

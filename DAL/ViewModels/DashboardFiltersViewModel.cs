@@ -14,5 +14,6 @@ namespace DAL.ViewModels
         public int pageNumber { get; set; }
         public int pageSize { get; set; }
         public int status { get; set; }
+        public int page {  get; set; }
     }
 }

@@ -24,6 +24,7 @@ namespace DAL.ViewModels
         public int physicianid {  get; set; }
         public int regionid {  get; set; }
         public List<ExcelFileViewModel> excelfiles { get; set; }
+        public int? currentPage { get; set; }
         
     }
 }

@@ -148,7 +148,7 @@ namespace HalloDoc_Project.Controllers
             return View();
         }
         public IActionResult AdminDashboard()
-        {
+         {
             //var email = HttpContext.Session.GetString("Email");
             //AdminDashboardViewModel advm = _adminTables.AdminDashboard(email);
             //return View(advm,this.ExcelFile());
@@ -346,25 +346,37 @@ namespace HalloDoc_Project.Controllers
             return RedirectToAction("CreateRequestAdminDashboard");
         }
         [HttpPost]
-        public IActionResult NewTable(int region, int type, string search)
+        public IActionResult NewTable(int page, int region, int type, string search)
         {
+            int pagesize = 5;
+            int pageNumber = 1;
+            if (page > 0)
+            {
+                pageNumber = page;
+            }
+            
             DashboardFilter filter = new DashboardFilter()
             {
+                pageNumber = pageNumber,
+                pageSize = pagesize,
                 PatientSearchText = search,
                 RegionFilter = region,
                 RequestTypeFilter = type,
+                page = page,
             };
             AdminDashboardViewModel model = _adminTables.GetNewTable(filter);
             //-----------------------------Pagination Logic----------------------------------
             //int TotalItems = model.adminRequests.Count;
             //int TotalPages = (int)Math.Ceiling((double)TotalItems / 5);   //Here 5 is the number of records per page
-            //var PaginatedData = model.adminRequests.ToList().Skip((TotalPages - 1) * 5).Take(5).ToList();
+            //var PaginatedData = model.adminRequests.ToList().Skip((2 - 1) * 5).Take(5).ToList();
             //if (model.adminRequests != null)
             //{
             //    ViewBag.Status = 1;
             //    ViewBag.CurrentPage = TotalPages;
             //    ViewBag.TotalPages = TotalPages;
             //}
+            model.currentPage = pageNumber;
+
             return PartialView("NewTable", model);
         }
         [HttpPost]

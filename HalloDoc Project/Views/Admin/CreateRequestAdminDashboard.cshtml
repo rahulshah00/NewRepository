@@ -2,7 +2,7 @@
 @{
     Layout = "_AdminDashboardLayout";
 }
-<div class="container-fluid bg-secondary-subtle pb-4">
+<div class="container-fluid  pb-4">
     <div class="mx-auto pt-3 mb-3 container-sm" id="secondDiv">
         <div class="backbtn d-flex justify-content-between px-3">
             <h4 class="text-body my-auto">Submit Information</h4>
@@ -21,7 +21,7 @@
             </a>
         </div>
 
-        <div id="FormOfPatientRequest" class="container-sm mt-3 p-3 gx-4 mb-3 bg-light-subtle shadow">
+        <div id="FormOfPatientRequest" class="container-sm mt-3 p-3 gx-4 mb-3 shadow">
             <form class="form-floating" method="post" enctype="multipart/form-data">
                 <!-- Patient Information -->
                 <div class="row gx-4">
@@ -30,7 +30,7 @@
                     <div class="col-sm-12 col-md-12 col-lg-6 form-floating my-3">
                         <input type="text"
                                asp-for="firstname"
-                               class="form-control shadow-none"
+                               class="form-control border shadow-none"
                                id="floatingInput1"
                                placeholder="First Name" />
                         <label for="floatingInput1" class="ms-2">First Name</label>
@@ -39,7 +39,7 @@
                     <div class="col-sm-12 col-md-12 col-lg-6 form-floating my-3">
                         <input type="text"
                                asp-for="lastname"
-                               class="form-control shadow-none"
+                               class="form-control border shadow-none"
                                id="floatingInput2"
                                placeholder="Last Name" />
                         <label for="floatingInput2" class="ms-2">Last Name</label>
@@ -48,7 +48,7 @@
                     <div class="col-sm-12 col-md-12 col-lg-6 form-floating my-3">
                         <input type="tel"
                                asp-for="phoneno"
-                               class="form-control shadow-none"
+                               class="form-control border shadow-none"
                                id="floatingInpu5t"
                                placeholder="PhoneNumber" />
                         <label for="floatingInput5" class="ms-2">Mobile Number</label>
@@ -57,7 +57,7 @@
                     <div class="col-sm-12 col-md-12 col-lg-6 form-floating my-3">
                         <input type="text"
                                asp-for="email"
-                               class="form-control shadow-none"
+                               class="form-control border shadow-none"
                                id="email1"
                                placeholder="name@inputtype.com" />
                         <!--onchange="CheckEmail()"-->
@@ -69,7 +69,7 @@
                                asp-for="birthDate"
                                max="@DateTime.Now.ToString("yyyy-MM-dd")"
                                min="@DateTime.Now.AddYears(-80).ToString("yyyy-MM-dd")"
-                               class="form-control shadow-none"
+                               class="form-control border shadow-none"
                                id="floatingInput3"
                                placeholder="Date Of Birth" />
                         <label for="floatingInput3" class="ms-2">Date Of Birth</label>
@@ -84,7 +84,7 @@
                     <div class="col-sm-12 col-md-12 col-lg-6 form-floating my-3">
                         <input type="text"
                                asp-for="street"
-                               class="form-control shadow-none"
+                               class="form-control border shadow-none"
                                id="floatingInput6"
                                placeholder="First Name" />
                         <label for="floatingInput6" class="ms-2">Street</label>
@@ -92,13 +92,13 @@
                     <div class="col-sm-12 col-md-12 col-lg-6 form-floating my-3">
                         <input type="text"
                                asp-for="city"
-                               class="form-control shadow-none"
+                               class="form-control border shadow-none"
                                id="floatingInput7"
                                placeholder="Last Name" />
                         <label for="floatingInput7" class="ms-2">City</label>
                     </div>
                     <div class="col-sm-12 col-md-12 col-lg-6 form-floating my-3">
-                        <select class="form-control d-flex align-items-center py-2" asp-for="state" name="SelectedStateId">
+                        <select class="form-control border d-flex align-items-center py-2" asp-for="state" name="SelectedStateId">
                             <option>Select State</option>
                             @for (int i = 0; i < Model.regions.Count; i++)
                             {
@@ -109,14 +109,15 @@
                     <div class="col-sm-12 col-md-12 col-lg-6 form-floating my-3">
                         <input type="text"
                                asp-for="zipcode"
-                               class="form-control shadow-none"
+                               class="form-control border shadow-none"
                                id="floatingInput8"
                                placeholder="Last Name" />
                         <label for="floatingInput" class="ms-2">Zip Code</label>
                     </div>
                     <div class="col-sm-12 col-md-12 col-lg-6 form-floating my-3">
                         <input type="text"
-                               class="form-control shadow-none"
+                               asp-for="lastname"
+                               class="form-control border shadow-none"
                                id="floatingInput9"
                                placeholder="Last Name" />
                         <label for="floatingInput9" class="ms-2">Room # / Suite (Optional)</label>
@@ -161,4 +162,3 @@
         </div>
     </div>
 </div>
-    
