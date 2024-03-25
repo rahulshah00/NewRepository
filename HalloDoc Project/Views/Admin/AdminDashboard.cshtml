@@ -835,7 +835,7 @@
             $.ajax({
                 url: '/Admin/PendingTable',
                 type: 'POST',
-                data: { region: region_filter, search: search_filter, type: type_filter },
+                data: { page: pageNo, region: region_filter, search: search_filter, type: type_filter },
                 success: function (data) {
                     $("#partial").html(data);
                 },
@@ -848,7 +848,7 @@
             $.ajax({
                 url: '/Admin/ActiveTable',
                 type: 'POST',
-                data: { region: region_filter, search: search_filter, type: type_filter },
+                data: { page: pageNo, region: region_filter, search: search_filter, type: type_filter },
                 success: function (data) {
                     $("#partial").html(data);
                 },
@@ -861,7 +861,7 @@
             $.ajax({
                 url: '/Admin/ConcludeTable',
                 type: 'POST',
-                data: { region: region_filter, search: search_filter, type: type_filter },
+                data: { page: pageNo, region: region_filter, search: search_filter, type: type_filter },
                 success: function (data) {
                     $("#partial").html(data);
                 },
@@ -874,7 +874,7 @@
             $.ajax({
                 url: '/Admin/ToCloseTable',
                 type: 'POST',
-                data: { region: region_filter, search: search_filter, type: type_filter },
+                data: { page: pageNo, region: region_filter, search: search_filter, type: type_filter },
                 success: function (data) {
                     $("#partial").html(data);
                 },
@@ -887,7 +887,7 @@
             $.ajax({
                 url: '/Admin/UnpaidTable',
                 type: 'POST',
-                data: { region: region_filter, search: search_filter, type: type_filter },
+                data: { page: pageNo, region: region_filter, search: search_filter, type: type_filter },
                 success: function (data) {
                     $("#partial").html(data);
                 },

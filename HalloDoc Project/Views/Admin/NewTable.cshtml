@@ -168,12 +168,10 @@
             }
         </tbody>
     </table>
-
     <nav aria-label="Page navigation example">
         <ul class="pagination">
             @if (Model.currentPage > 1)
             {
-                
             <li class="page-item"><button type="button" onclick="loadPreviousPage(@Model.currentPage)" id="" class="page-link" href="#">Previous</button></li>
             }
             <li class="page-item"><span class="page-link" href="#">@Model.currentPage</span></li>

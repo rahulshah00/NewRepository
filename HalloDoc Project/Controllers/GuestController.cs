@@ -62,6 +62,14 @@ namespace HalloDoc_Project.Controllers
             }
             return RedirectToAction("submit_request_page");
         }
+        public IActionResult TermsAndConditions()
+        {
+            return View();
+        }
+        public IActionResult PrivacyPolicy()
+        {
+            return View();
+        }
         public IActionResult Index()
         {
             return View();
@@ -90,6 +98,7 @@ namespace HalloDoc_Project.Controllers
             if (ModelState.IsValid)
             {
                 _patient_Request.BRequest(bm);
+                return RedirectToAction("Business_Info","Guest");
             }
             return View();
         }
@@ -105,6 +114,7 @@ namespace HalloDoc_Project.Controllers
             if (ModelState.IsValid)
             {
                 _patient_Request.CRequest(cm);
+                return RedirectToAction("Concierge_info","Guest");
             }
             return View();
         }
@@ -116,10 +126,14 @@ namespace HalloDoc_Project.Controllers
         [AutoValidateAntiforgeryToken]
         public IActionResult Friend_family(FamilyFriendModel fmfr)
         {
-            //path = _environment.WebRootPath;
+            string path = _environment.WebRootPath;
+            
             if (ModelState.IsValid)
             {
-                _patient_Request.FRequest(fmfr);
+                var uniqueid = Guid.NewGuid().ToString();
+                _patient_Request.FRequest(fmfr,uniqueid,path);
+                return RedirectToAction("Friend_Family", "Guest");
+
             }
             return View(fmfr);
         }
@@ -135,7 +149,8 @@ namespace HalloDoc_Project.Controllers
             string path = _environment.WebRootPath;
             if (ModelState.IsValid)
             {
-                _patient_Request.PRequest(pm, path);
+                var uniqueid = Guid.NewGuid().ToString();
+                _patient_Request.PRequest(pm,uniqueid, path);
                 return RedirectToAction("create_patient_request", "Guest");
             }
             return View();

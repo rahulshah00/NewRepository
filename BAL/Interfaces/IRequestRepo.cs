@@ -10,9 +10,9 @@ namespace BAL.Interfaces
 {
     public interface IRequestRepo
     { 
-        public void PRequest(PatientModel pm,string path);
+        public void PRequest(PatientModel pm,string uniqueid,string path);
         public void BRequest(BusinessModel bm);
-        public void FRequest(FamilyFriendModel ffm);
+        public void FRequest(FamilyFriendModel ffm,string uniqueid,string path);
         public void CRequest(ConciergeModel cm);
     }
 }

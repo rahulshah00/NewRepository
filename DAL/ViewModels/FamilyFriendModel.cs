@@ -1,4 +1,5 @@
 ﻿using DAL.ViewModels;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +16,6 @@ namespace DAL.ViewModels
         public string email { get; set; }
         public string? phone { get; set; }
         public string relation {  get; set; }
+        public IFormFile? file {  get; set; }
     }
 }

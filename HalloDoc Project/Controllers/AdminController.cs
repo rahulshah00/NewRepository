@@ -357,84 +357,121 @@ namespace HalloDoc_Project.Controllers
             
             DashboardFilter filter = new DashboardFilter()
             {
-                pageNumber = pageNumber,
-                pageSize = pagesize,
                 PatientSearchText = search,
                 RegionFilter = region,
                 RequestTypeFilter = type,
+                pageNumber = pageNumber,
+                pageSize = pagesize,
                 page = page,
             };
             AdminDashboardViewModel model = _adminTables.GetNewTable(filter);
-            //-----------------------------Pagination Logic----------------------------------
-            //int TotalItems = model.adminRequests.Count;
-            //int TotalPages = (int)Math.Ceiling((double)TotalItems / 5);   //Here 5 is the number of records per page
-            //var PaginatedData = model.adminRequests.ToList().Skip((2 - 1) * 5).Take(5).ToList();
-            //if (model.adminRequests != null)
-            //{
-            //    ViewBag.Status = 1;
-            //    ViewBag.CurrentPage = TotalPages;
-            //    ViewBag.TotalPages = TotalPages;
-            //}
             model.currentPage = pageNumber;
 
             return PartialView("NewTable", model);
         }
         [HttpPost]
-        public IActionResult ActiveTable(int region, int type, string search)
+        public IActionResult ActiveTable(int page,int region, int type, string search)
         {
+            int pagesize = 5;
+            int pageNumber = 1;
+            if (page > 0)
+            {
+                pageNumber = page;
+            }
             DashboardFilter filter = new DashboardFilter()
             {
                 PatientSearchText = search,
                 RegionFilter = region,
                 RequestTypeFilter = type,
+                pageNumber = pageNumber,
+                pageSize = pagesize,
+                page = page,
             };
             AdminDashboardViewModel model = _adminTables.GetActiveTable(filter);
             return PartialView("ActiveTable", model);
         }
         [HttpPost]
-        public IActionResult PendingTable(int region, int type, string search)
+        public IActionResult PendingTable(int page, int region, int type, string search)
         {
+            int pagesize = 5;
+            int pageNumber = 1;
+            if (page > 0)
+            {
+                pageNumber = page;
+            }
             DashboardFilter filter = new DashboardFilter()
             {
                 PatientSearchText = search,
                 RegionFilter = region,
                 RequestTypeFilter = type,
+                pageNumber = pageNumber,
+                pageSize = pagesize,
+                page = page,
             };
             AdminDashboardViewModel model = _adminTables.GetPendingTable(filter);
+            model.currentPage = pageNumber;
+
             return PartialView("PendingTable", model);
         }
         [HttpPost]
-        public IActionResult ConcludeTable(int region, int type, string search)
+        public IActionResult ConcludeTable(int page, int region, int type, string search)
         {
+            int pagesize = 5;
+            int pageNumber = 1;
+            if (page > 0)
+            {
+                pageNumber = page;
+            }
             DashboardFilter filter = new DashboardFilter()
             {
                 PatientSearchText = search,
                 RegionFilter = region,
                 RequestTypeFilter = type,
+                pageNumber = pageNumber,
+                pageSize = pagesize,
+                page = page,
             };
             AdminDashboardViewModel model = _adminTables.GetConcludeTable(filter);
             return PartialView("ConcludeTable", model);
         }
         [HttpPost]
-        public IActionResult ToCloseTable(int region, int type, string search)
+        public IActionResult ToCloseTable(int page ,int region, int type, string search)
         {
+            int pagesize = 5;
+            int pageNumber = 1;
+            if (page > 0)
+            {
+                pageNumber = page;
+            }
             DashboardFilter filter = new DashboardFilter()
             {
                 PatientSearchText = search,
                 RegionFilter = region,
                 RequestTypeFilter = type,
+                pageNumber = pageNumber,
+                pageSize = pagesize,
+                page = page,
             };
             AdminDashboardViewModel model = _adminTables.GetToCloseTable(filter);
             return PartialView("ToCloseTable", model);
         }
         [HttpPost]
-        public IActionResult UnpaidTable(int region, int type, string search)
+        public IActionResult UnpaidTable(int page, int region, int type, string search)
         {
+            int pagesize = 5;
+            int pageNumber = 1;
+            if (page > 0)
+            {
+                pageNumber = page;
+            }
             DashboardFilter filter = new DashboardFilter()
             {
                 PatientSearchText = search,
                 RegionFilter = region,
                 RequestTypeFilter = type,
+                pageNumber = pageNumber,
+                pageSize = pagesize,
+                page = page,
             };
             AdminDashboardViewModel model = _adminTables.GetUnpaidTable(filter);
             return PartialView("UnpaidTable", model);

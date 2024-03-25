@@ -14,7 +14,6 @@
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"
             integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous">
     </script>
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
     <style>
@@ -36,14 +35,22 @@
             z-index: 5;
         }
 
+        .PatientInputs:focus {
+            box-shadow: none !important;
+            border: 2px solid #10bce9 !important;
+        }
+
+        .PatientInputs:focus-within + label {
+            color: #10bce9 !important;
+        }
+
         .backbtn:hover {
             color: white;
         }
     </style>
 </head>
-
-<body style="width:100%;" class="">
-    <!--<nav class="navbar navigationbar navbar-light bg-light shadow bg-white rounded w-100">
+<body style="width:100%;" class="bground">
+    @* <!--<nav class="navbar navigationbar navbar-light bg-light shadow bg-white rounded w-100">
         <div class="w-100 align-items-center" style="display:contents;">
             <div class="">
                 <a href="#" class="navbar-brand">
@@ -59,63 +66,63 @@
                 </button>
             </div>
         </div>
-    </nav>-->
+    </nav>--> *@
     <br>
     <div class="row justify-content-end">
         <div class="col-2">
             <button class="btn btn-outline-info backbtn " onclick="window.history.back(-1)" style="width:auto">
                 <div>
-                    <img src="/SRS Screen Shorts/go-back-2.svg" alt="" width="25px">Back
+                    <img src="/SRS Screen Shorts/go-back-2.svg" style="width:25px">Back
                 </div>
             </button>
         </div>
     </div>
     <br>
-    <div class="row mb-4 d-flex justify-content-center">
-        <div class="col-11 col-md-10 col-lg-9 shadow-lg">
+    <div class="form row mb-4 d-flex justify-content-center">
+        <div class="col-11 col-sm-10 col-md-9 col-lg-8 shadow-lg">
             <form method="post">
                 <div class="row mt-4">
                     <h5>Business Information</h5>
                 </div>
                 <div class="row">
-                    <div class="col-11 col-sm-6 mt-4">
+                    <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating">
-                            <input type="text" asp-for="BsFirstName" class="t form-control" id="YourFname" placeholder="Your First Name ">
+                            <input type="text" asp-for="BsFirstName" class="PatientInputs form-control" id="YourFname" placeholder="Your First Name ">
                             <label for="YourFname">First Name</label>
                         </div>
 
                     </div>
-                    <div class="col-11 col-sm-6 mt-4">
+                    <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating">
-                            <input type="text" asp-for="BsLastName" class="t  form-control" id="YourLName" placeholder="Your Last Name">
+                            <input type="text" asp-for="BsLastName" class="PatientInputs form-control" id="YourLName" placeholder="Your Last Name">
                             <label for="YourLName">Last Name</label>
                         </div>
                     </div>
                 </div>
 
                 <div class="row ">
-                    <div class="col-11 col-sm-6 mt-4">
+                    <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating mt-3">
-                            <input id="business-phone" asp-for="BsPhoneNo" class="form-control" type="tel" name="phone1"></input>
+                            <input id="business-phone" asp-for="BsPhoneNo" class="PatientInputs form-control" type="tel" name="phone1"></input>
                         </div>
                     </div>
-                    <div class="col-11 col-sm-6 mt-4">
+                    <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating">
-                            <input type="email" asp-for="BsEmail" class="t  form-control" id="email" placeholder="Your Email">
+                            <input type="email" asp-for="BsEmail" class="PatientInputs form-control" id="email" placeholder="Your Email">
                             <label for="email">Your Email</label>
                         </div>
                     </div>
                 </div>
                 <div class="row ">
-                    <div class="col-11 col-sm-6 mt-4">
+                    <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating">
-                            <input type="text" asp-for="BusinessName" class="t  form-control" id="property" placeholder="Room">
+                            <input type="text" asp-for="BusinessName" class="PatientInputs form-control" id="property" placeholder="Room">
                             <label for="property">Business/Property Name</label>
                         </div>
                     </div>
-                    <div class="col-11 col-sm-6 mt-4">
+                    <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating">
-                            <input type="text" asp-for="BsCaseNo" class="t  form-control" id="Case ID" placeholder="Room">
+                            <input type="text" asp-for="BsCaseNo" class="PatientInputs form-control" id="Case ID" placeholder="Room">
                             <label for="Case ID">Case Number (Optional)</label>
                         </div>
                     </div>
@@ -124,26 +131,26 @@
                     <h5 for="" class="mt-4">Patient Information</h5>
                 </div>
                 <div class="row mt-4">
-                    <div class="col form-floating ">
-                        <textarea asp-for="Symptoms" class="t form-control" id="forfloatingtextarea"
+                    <div class="col-12  form-floating ">
+                        <textarea asp-for="Symptoms" class="PatientInputs form-control" id="forfloatingtextarea"
                                   placeholder="Enter Brief Details Of Symptoms(Optional)" style="height: 15vh;" cols="20"
                                   rows="5"></textarea>
                         <label for="forfloatingtextarea" class="ms-2">Enter Brief Details Of Symptoms(Optional)</label>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-11 mt-4 col-sm-6 form-floating ">
-                        <input asp-for="PtFirstName" type="text" asp-for"" placeholder="First Name" class="t  form-control" id="fname">
+                    <div class="col-12 col-sm-6 mt-4 form-floating ">
+                        <input asp-for="PtFirstName" type="text" asp-for"" placeholder="First Name" class="PatientInputs form-control" id="fname">
                         <label for="fname" class="ms-2">First Name</label>
                     </div>
-                    <div class="col-11 col-sm-6 mt-4 form-floating  ">
-                        <input type="text" asp-for="PtLastName" placeholder="Last Name" class="t form-control" id="lname">
+                    <div class="col-12 col-sm-6 mt-4 form-floating  ">
+                        <input type="text" asp-for="PtLastName" placeholder="Last Name" class="PatientInputs form-control" id="lname">
                         <label for="lname" class="ms-2">Last Name</label>
                     </div>
                 </div>
                 <div class="row ">
-                    <div class="col-11 col-sm-6  mt-4 form-floating">
-                        <input type="date" asp-for="PtDOB" placeholder="Date Of Birth" class="t form-control" id="DOB">
+                    <div class="col-12 col-sm-6 mt-4 form-floating">
+                        <input type="date" asp-for="PtDOB" placeholder="Date Of Birth" class="PatientInputs form-control" id="DOB">
                         <label for="DOB" class="ms-2">Date Of Birth</label>
                     </div>
                 </div>
@@ -151,15 +158,15 @@
                     <h5 for="">Patient Contact Information</h5>
                 </div>
                 <div class="row ">
-                    <div class="col-11 col-sm-6 mt-4">
+                    <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating">
-                            <input type="email" asp-for="PtEmail" placeholder="Email" class=" t form-control" id="emailfloat">
+                            <input type="email" asp-for="PtEmail" placeholder="Email" class="PatientInputs form-control" id="emailfloat">
                             <label for="emailfloat">Email</label>
                         </div>
                     </div>
-                    <div class="col-11 col-sm-6 mt-4 ">
+                    <div class="col-12 col-sm-6 mt-4 ">
                         <div class="form-floating ">
-                            <input id="patient-phone" asp-for="PtPhoneNo" class="form-control" type="text" name="phone1"></input>
+                            <input id="patient-phone" asp-for="PtPhoneNo" class="PatientInputs form-control" type="text" name="phone1"></input>
                         </div>
                     </div>
                 </div>
@@ -167,45 +174,44 @@
                     <h5>Patient Location</h5>
                 </div>
                 <div class="row ">
-                    <div class="col-11 col-sm-6 mt-4">
+                    <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating">
-                            <input type="text" asp-for="Street" class="t form-control" id="floatingEmail" placeholder="Email ">
+                            <input type="text" asp-for="Street" class="PatientInputs form-control" id="floatingEmail" placeholder="Email ">
                             <label for="floatingEmail">Street</label>
                         </div>
 
                     </div>
-                    <div class="col-11 col-sm-6 mt-4">
+                    <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating">
-                            <input type="text" asp-for="city" class="t  form-control" id="floatingCity" placeholder="City">
+                            <input type="text" asp-for="city" class="PatientInputs form-control" id="floatingCity" placeholder="City">
                             <label for="floatingCity">City</label>
                         </div>
                     </div>
                 </div>
 
                 <div class="row ">
-                    <div class="col-11 col-sm-6 mt-4">
+                    <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating">
-                            <input type="text" asp-for="state" class="t  form-control" id="floatingState" placeholder="state">
+                            <input type="text" asp-for="state" class="PatientInputs form-control" id="floatingState" placeholder="state">
                             <label for="floatingState">State</label>
                         </div>
                     </div>
-                    <div class="col-11 col-sm-6 mt-4">
+                    <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating">
-                            <input type="number" asp-for="zipcode" class="t  form-control" id="floatingZip" placeholder="zip">
+                            <input type="number" asp-for="zipcode" class="PatientInputs form-control" id="floatingZip" placeholder="zip">
                             <label for="floatingZip">Zip Code</label>
                         </div>
                     </div>
                 </div>
                 <div class="row ">
-                    <div class="col-11 col-sm-6 mt-4">
+                    <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating">
-                            <input type="text" asp-for="room" class="t  form-control" id="floatingRoom" placeholder="Room">
+                            <input type="text" asp-for="room" class="PatientInputs form-control" id="floatingRoom" placeholder="Room">
                             <label for="floatingRoom">Room # / Suite (Optional)</label>
                         </div>
                     </div>
                 </div>
-                <div class="row px-3">
-                    <div class="row  text-end">
+                    <div class="row text-end">
                         <div class="">
                             <button type="submit" class="m-2 btn  btn-info text-light">
                                 <span class="p-3">Submit</span>

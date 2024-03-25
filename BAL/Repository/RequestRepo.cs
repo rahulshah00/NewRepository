@@ -2,10 +2,12 @@
 using DAL.DataContext;
 using DAL.DataModels;
 using DAL.ViewModels;
+using DocumentFormat.OpenXml.Office2016.Excel;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Security.Cryptography;
 using System.Text;
+using System.Xml;
 
 namespace BAL.Repository
 {
@@ -21,7 +23,7 @@ namespace BAL.Repository
             _insertfiles = insertfiles;
         }
         
-        public void FRequest(FamilyFriendModel fmfr)
+        public void FRequest(FamilyFriendModel fmfr,string uniqueid,string path)
         {
             Request r = new()
             {
@@ -48,9 +50,22 @@ namespace BAL.Repository
                 Zipcode = fmfr.PatientModel.ZipCode
 
             };
-
             _context.Requestclients.Add(rcl);
             _context.SaveChanges();
+            if (fmfr.file!= null)
+            {
+                _insertfiles.insertfilesunique(fmfr.file, uniqueid, path);
+                var filestring = Path.GetFileNameWithoutExtension(fmfr.file.FileName);
+                var extensionstring = Path.GetExtension(fmfr.file.FileName);
+                Requestwisefile rwf = new()
+                {
+                    Requestid = r.Requestid,
+                    Filename = uniqueid + "$" + fmfr.file.FileName,
+                    Createddate = DateTime.Now,
+                };
+                _context.Requestwisefiles.Add(rwf);
+                _context.SaveChanges();
+            }
         }
         public void CRequest(ConciergeModel cm)
         {
@@ -101,7 +116,7 @@ namespace BAL.Repository
             _context.Requestclients.Add(rcl);
             _context.SaveChanges();
         }
-        public void PRequest(PatientModel pm, string _path)
+        public void PRequest(PatientModel pm, string uniqueid,string _path)
         {
             if (pm.Password != null)
             {
@@ -171,11 +186,13 @@ namespace BAL.Repository
                     //var filename = Path.GetFileName(model.File.FileName);
                     //var FinalFileName = $"{myuuid.ToString()}*{filename}";
 
-                    _insertfiles.insertfiles(pm.File, _path);
+                    _insertfiles.insertfilesunique(pm.File, uniqueid, _path);
+                    var filestring = Path.GetFileNameWithoutExtension(pm.File.FileName);
+                    var extensionstring = Path.GetExtension(pm.File.FileName);
                     Requestwisefile rwf = new()
                     {
                         Requestid = request.Requestid,
-                        Filename = pm.File.FileName,
+                        Filename = uniqueid + "$" + pm.File.FileName,
                         Createddate = DateTime.Now,
                     };
                     _context.Requestwisefiles.Add(rwf);
