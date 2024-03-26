@@ -59,6 +59,7 @@ namespace BAL.Repository
                 LastName = user.Lastname,
                 requestId = requestid
             };
+
             if (check != null)
             {
                 EncModel.abd = check.Abd;

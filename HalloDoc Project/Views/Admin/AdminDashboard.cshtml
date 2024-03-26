@@ -204,7 +204,7 @@
                 <span class="ms-1 d-md-block d-none text-white">Create Request</span>
             </a>
             <form asp-action="ExportToExcel" asp-controller="Admin" method="post">
-                <button type="submit" class="mx-1 px-2 py-1 btn btn-primary" style="background-color:#10bce9">
+                <button type="submit" id="ExportButton" class="mx-1 px-2 py-1 btn btn-primary" style="background-color:#10bce9">
                     <svg width="25px" height="25px" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="white"
                          class="bi bi-reply">
                         <path transform="scale(-1, 1) translate(-20,0)"
@@ -709,6 +709,7 @@
 
 </script>
 <script>
+
     var pageNo = 1;
     var dashboardStatus = 0;
     var type_filter = 0;
@@ -725,23 +726,37 @@
         LoadPartialTables(currentpage - 1);
     }
 
+    $('#ExportButton').onclick("click", function () {
+        $.ajax({
+            url: '/Admin/ExportToExcel',
+            type: 'POST',
+            data: { dashboardStatus:dashboardStatus, page: pageNo, region: region_filter, search: search_filter, type: type_filter },
+            success: function (data) {
+                $("#partial").html(data);
+            },
+            error: function (error) {
+                alert('ExportError');
+            }
+        });
+    });
 
-    $("#searchBtn").on("keyup", function () {
-        var searchValue = $(this).val().toLowerCase();
-        search_filter = searchValue;
-
-        clearTimeout(searchTimer);
-        searchTimer = setTimeout(function () {
+    $("#searchBtn").on("keydown", function (e) {
+        if (e.code === "Enter") 
+        {  //checks whether the pressed key is "Enter"
+            var searchValue = $(this).val().toLowerCase();
+            search_filter = searchValue;
             LoadPartialTables(pageNo);
-        }, 500);
-
+        }
+        // clearTimeout(searchTimer);
+        // searchTimer = setTimeout(function () {
+        //     LoadPartialTables(pageNo);
+        // }, 500);
     });
 
     $("#RegionFilters").change(function () {
         region_filter = $('option:selected', this).val();
         LoadPartialTables(pageNo);
     });
-
 
     $(".status-tab").click(function () {
 

@@ -2,6 +2,7 @@
 using DAL.DataContext;
 using DAL.DataModels;
 using DAL.ViewModels;
+using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.EntityFrameworkCore;
@@ -47,6 +48,12 @@ namespace BAL.Repository
 
         public AdminDashboardViewModel GetActiveTable(DashboardFilter filter)
         {
+            int pagesize = 5;
+            int pageNumber = 1;
+            if (filter.page > 0)
+            {
+                pageNumber = filter.page;
+            }
             var adminRequests = (from r in _context.Requests
                                  join rc in _context.Requestclients on r.Requestid equals rc.Requestid
                                  where (filter.RequestTypeFilter == 0 || r.Requesttypeid == filter.RequestTypeFilter)
@@ -65,7 +72,7 @@ namespace BAL.Repository
                                      physicianName = "Dr.XYZ",
                                      servicedate = DateOnly.Parse("22-12-2022")
                                  }
-                                ).Where(x => x.status == 4 || x.status == 5).ToList();
+                                ).Where(x => x.status == 4 || x.status == 5).Skip((pageNumber - 1) * pagesize).Take(pagesize).ToList();
             AdminDashboardViewModel model = new AdminDashboardViewModel()
             {
                 adminRequests = adminRequests,
@@ -74,6 +81,12 @@ namespace BAL.Repository
         }
         public AdminDashboardViewModel GetConcludeTable(DashboardFilter filter)
         {
+            int pagesize = 5;
+            int pageNumber = 1;
+            if (filter.page > 0)
+            {
+                pageNumber = filter.page;
+            }
             var adminRequests = (from r in _context.Requests
                                  join rc in _context.Requestclients on r.Requestid equals rc.Requestid
                                  where (filter.RequestTypeFilter == 0 || r.Requesttypeid == filter.RequestTypeFilter)
@@ -93,7 +106,7 @@ namespace BAL.Repository
                                      servicedate = DateOnly.Parse("22-12-2022"),
                                      email = rc.Email
                                  }
-                               ).Where(x => x.status == 6).ToList();
+                               ).Where(x => x.status == 6).Skip((pageNumber - 1) * pagesize).Take(pagesize).ToList();
             AdminDashboardViewModel model = new AdminDashboardViewModel()
             {
                 adminRequests = adminRequests,
@@ -128,11 +141,18 @@ namespace BAL.Repository
             AdminDashboardViewModel model = new AdminDashboardViewModel()
             {
                 adminRequests = adminRequests,
+                TotalPage = (int)Math.Ceiling(adminRequests.Count() / (double)pagesize)
             };
             return model;
         }
         public AdminDashboardViewModel GetPendingTable(DashboardFilter filter)
         {
+            int pagesize = 5;
+            int pageNumber = 1;
+            if (filter.page > 0)
+            {
+                pageNumber = filter.page;
+            }
             var adminRequests = (from r in _context.Requests
                                  join rc in _context.Requestclients on r.Requestid equals rc.Requestid
                                  where (filter.RequestTypeFilter == 0 || r.Requesttypeid == filter.RequestTypeFilter)
@@ -151,7 +171,7 @@ namespace BAL.Repository
                                      physicianName = "Dr.XYZ",
                                      servicedate = DateOnly.Parse("22-12-2022"),
                                      email = rc.Email
-                                 }).Where(x => x.status == 2).ToList();
+                                 }).Where(x => x.status == 2).Skip((pageNumber - 1) * pagesize).Take(pagesize).ToList();
             AdminDashboardViewModel model = new AdminDashboardViewModel()
             {
                 adminRequests = adminRequests,
@@ -160,6 +180,12 @@ namespace BAL.Repository
         }
         public AdminDashboardViewModel GetToCloseTable(DashboardFilter filter)
         {
+            int pagesize = 5;
+            int pageNumber = 1;
+            if (filter.page > 0)
+            {
+                pageNumber = filter.page;
+            }
             var adminRequests = (from r in _context.Requests
                                  join rc in _context.Requestclients on r.Requestid equals rc.Requestid
                                  where (filter.RequestTypeFilter == 0 || r.Requesttypeid == filter.RequestTypeFilter)
@@ -178,7 +204,8 @@ namespace BAL.Repository
                                      physicianName = "Dr.XYZ",
                                      servicedate = DateOnly.Parse("22-12-2022"),
                                      email = rc.Email
-                                 }).Where(x => x.status == 3 || x.status == 7 || x.status == 8).ToList();
+                                 }).Where(x => x.status == 3 || x.status == 7 || x.status == 8).Skip((pageNumber - 1) * pagesize).Take(pagesize).ToList();
+
             AdminDashboardViewModel model = new AdminDashboardViewModel()
             {
                 adminRequests = adminRequests,
@@ -187,6 +214,12 @@ namespace BAL.Repository
         }
         public AdminDashboardViewModel GetUnpaidTable(DashboardFilter filter)
         {
+            int pagesize = 5;
+            int pageNumber = 1;
+            if (filter.page > 0)
+            {
+                pageNumber = filter.page;
+            }
             var adminRequests = (from r in _context.Requests
                                  join rc in _context.Requestclients on r.Requestid equals rc.Requestid
                                  where (filter.RequestTypeFilter == 0 || r.Requesttypeid == filter.RequestTypeFilter)
@@ -205,7 +238,7 @@ namespace BAL.Repository
                                      physicianName = "Dr.XYZ",
                                      servicedate = DateOnly.Parse("22-12-2022"),
                                      email = rc.Email
-                                 }).Where(x => x.status == 9).ToList();
+                                 }).Where(x => x.status == 9).Skip((pageNumber - 1) * pagesize).Take(pagesize).ToList();
             AdminDashboardViewModel model = new AdminDashboardViewModel()
             {
                 adminRequests = adminRequests,

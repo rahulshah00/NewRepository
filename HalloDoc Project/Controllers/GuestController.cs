@@ -155,10 +155,15 @@ namespace HalloDoc_Project.Controllers
             }
             return View();
         }
+        public IActionResult SessionExpired()
+        {
+            return View();
+        }
         public IActionResult login_page()
         {
             return View();
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult login_page(Aspnetuser demouser)

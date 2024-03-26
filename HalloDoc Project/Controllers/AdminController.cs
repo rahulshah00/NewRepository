@@ -7,6 +7,8 @@ using BAL.Interfaces;
 using DocumentFormat.OpenXml.Office2010.CustomUI;
 using DocumentFormat.OpenXml.Wordprocessing;
 using ClosedXML.Excel;
+using Rotativa.AspNetCore;
+using DocumentFormat.OpenXml.Bibliography;
 
 namespace HalloDoc_Project.Controllers
 {
@@ -154,12 +156,11 @@ namespace HalloDoc_Project.Controllers
             //return View(advm,this.ExcelFile());
             var email = HttpContext.Session.GetString("Email");
             AdminDashboardViewModel advm = _adminTables.AdminDashboard(email);
-            var excelData = this.ExcelFile();
-            advm.excelfiles = excelData;
+             //advm.excelfiles = this.;
             return View(advm);
         }
 
-        public ActionResult ExportToExcel()
+        public ActionResult ExportToExcel(int dashboardstatus, int page, int region, int type, string search)
         {
             var workbook = new XLWorkbook();
             var worksheet = workbook.Worksheets.Add("EmployeeList");
@@ -172,7 +173,7 @@ namespace HalloDoc_Project.Controllers
             }
 
             // Get employee data (assuming GetEmployeeList() returns a list of employees)
-            var records = ExcelFile();
+            var records = ExcelFile( dashboardstatus, page, region, type, search);
             for (int i = 0; i < records.Count; i++)
             {
                 worksheet.Cell(i + 2, 1).Value = records[i].Name;
@@ -193,6 +194,54 @@ namespace HalloDoc_Project.Controllers
             // Return the Excel file
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "RequestDataExcel.xlsx");
 
+        }
+        public List<ExcelFileViewModel> ExcelFile(int dashboardstatus,int page, int region, int type, string search)
+        {
+            List< ExcelFileViewModel > ExcelData = new List< ExcelFileViewModel >();
+            int pagesize = 5;
+            int pageNumber = 1;
+            if (page > 0)
+            {
+                pageNumber = page;
+            }
+            DashboardFilter filter = new DashboardFilter()
+            {
+                PatientSearchText = search,
+                RegionFilter = region,
+                RequestTypeFilter = type,
+                pageNumber = pageNumber,
+                pageSize = pagesize,
+                page = page,
+            };
+            switch (dashboardstatus)
+            {
+                case 1:
+                    pagesize = 5;
+                    pageNumber = 1;
+                    if (filter.page > 0)
+                    {
+                        pageNumber = filter.page;
+                    }
+                     ExcelData = (from r in _context.Requests
+                                         join rc in _context.Requestclients on r.Requestid equals rc.Requestid
+                                         where (filter.RequestTypeFilter == 0 || r.Requesttypeid == filter.RequestTypeFilter)
+                                         && (filter.RegionFilter == 0 || rc.Regionid == filter.RegionFilter)
+                                         && (string.IsNullOrEmpty(filter.PatientSearchText) || (rc.Firstname + " " + rc.Lastname).ToLower().Contains(filter.PatientSearchText.ToLower()))
+                                         select new ExcelFileViewModel
+                                         {
+                                             requestid = r.Requestid,
+                                             Name = rc.Firstname + " " + rc.Lastname,
+                                             email=rc.Email,
+                                             PhoneNo = rc.Phonenumber,
+                                             address = rc.Address,
+                                             requesttypeid= r.Requesttypeid,
+                                             status = r.Status
+                                         }).Where(x => x.status == 1).ToList();
+                    break;
+                default:
+                    break;
+            }
+            return ExcelData;
         }
         [HttpPost]
         public IActionResult AssignCase(int RequestId, string AssignPhysician, string AssignDescription)
@@ -306,8 +355,6 @@ namespace HalloDoc_Project.Controllers
 
                 _context.Requestclients.Add(rc);
                 _context.SaveChanges();
-
-
             }
             else
             {
@@ -345,6 +392,7 @@ namespace HalloDoc_Project.Controllers
             }
             return RedirectToAction("CreateRequestAdminDashboard");
         }
+
         [HttpPost]
         public IActionResult NewTable(int page, int region, int type, string search)
         {
@@ -354,7 +402,6 @@ namespace HalloDoc_Project.Controllers
             {
                 pageNumber = page;
             }
-            
             DashboardFilter filter = new DashboardFilter()
             {
                 PatientSearchText = search,
@@ -388,6 +435,7 @@ namespace HalloDoc_Project.Controllers
                 page = page,
             };
             AdminDashboardViewModel model = _adminTables.GetActiveTable(filter);
+            model.currentPage = pageNumber;
             return PartialView("ActiveTable", model);
         }
         [HttpPost]
@@ -432,6 +480,8 @@ namespace HalloDoc_Project.Controllers
                 page = page,
             };
             AdminDashboardViewModel model = _adminTables.GetConcludeTable(filter);
+            model.currentPage = pageNumber;
+
             return PartialView("ConcludeTable", model);
         }
         [HttpPost]
@@ -453,6 +503,8 @@ namespace HalloDoc_Project.Controllers
                 page = page,
             };
             AdminDashboardViewModel model = _adminTables.GetToCloseTable(filter);
+            model.currentPage = pageNumber;
+
             return PartialView("ToCloseTable", model);
         }
         [HttpPost]
@@ -474,7 +526,21 @@ namespace HalloDoc_Project.Controllers
                 page = page,
             };
             AdminDashboardViewModel model = _adminTables.GetUnpaidTable(filter);
+            model.currentPage = pageNumber;
+
             return PartialView("UnpaidTable", model);
+        }
+        public IActionResult FinalizeDownload(int requestid)
+        {
+            var EncounterModel = _encounterForm.EncounterFormGet(requestid);
+            if (EncounterModel == null)
+            {
+                return NotFound();
+            }
+            return new ViewAsPdf("EncounterFormFinalizeView", EncounterModel)
+            {
+                FileName = "FinalizedEncounterForm.pdf"
+            };
         }
         public IActionResult EncounterForm(int requestId, EncounterFormViewModel EncModel)
         {
@@ -639,23 +705,7 @@ namespace HalloDoc_Project.Controllers
             _adminActions.SendOrderAction(requestid, sendOrder);
             return SendOrders(requestid);
         }
-        public List<ExcelFileViewModel> ExcelFile()
-        {
-            var RequestData = (from r in _context.Requests
-                               join rc in _context.Requestclients
-                               on r.Requestid equals rc.Requestid
-                               select new ExcelFileViewModel()
-                               {
-                                   Name = rc.Firstname + " " + rc.Lastname,
-                                   PhoneNo = rc.Phonenumber,
-                                   email = rc.Email,
-                                   requestid = r.Requestid,
-                                   status = r.Status,
-                                   address = rc.Address,
-                                   requesttypeid = r.Requesttypeid
-                               }).ToList();
-            return RequestData;
-        }
+        
         public List<Healthprofessional> filterVenByPro(string ProfessionId)
         {
             var result = _context.Healthprofessionals.Where(u => u.Profession == int.Parse(ProfessionId)).ToList();
@@ -664,6 +714,7 @@ namespace HalloDoc_Project.Controllers
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
+            Response.Cookies.Delete("jwt");
             return RedirectToAction("login_page", "Guest");
         }
 

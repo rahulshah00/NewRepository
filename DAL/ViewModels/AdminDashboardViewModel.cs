@@ -25,6 +25,7 @@ namespace DAL.ViewModels
         public int regionid {  get; set; }
         public List<ExcelFileViewModel> excelfiles { get; set; }
         public int? currentPage { get; set; }
-        
+        public int? TotalPage { get; set; }
+
     }
 }

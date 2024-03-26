@@ -195,15 +195,19 @@
     </table>
     <nav aria-label="Page navigation example">
         <ul class="pagination">
+            @if (Model.currentPage == 1)
+            {
+                <li class="page-item"><button type="button" disabled onclick="loadPreviousPage(@Model.currentPage)" class="text-muted page-link" href="#">Previous</button></li>
+            }
             @if (Model.currentPage > 1)
             {
-                <li class="page-item"><button type="button" onclick="loadPreviousPage(@Model.currentPage)" id="" class="page-link" href="#">Previous</button></li>
+                <li class="page-item"><button type="button" onclick="loadPreviousPage(@Model.currentPage)" class="page-link" href="#">Previous</button></li>
+
             }
             <li class="page-item"><span class="page-link" href="#">@Model.currentPage</span></li>
             @if (Model.currentPage != (int)Math.Ceiling((double)Model.pending / 5))
             {
                 <li class="page-item"><button type="button" onclick="loadNextPage(@Model.currentPage)" class="page-link" id="">Next</button></li>
-
             }
         </ul>
     </nav>
@@ -234,7 +238,6 @@
                             {
                                 <h6 class="mb-3">
                                     Family/Friend
-
                                     <svg height="15" width="15" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                                         <circle fill="#ed9124" r="45" cx="50" cy="50" stroke="grey" stroke-width="3" />
                                     </svg>

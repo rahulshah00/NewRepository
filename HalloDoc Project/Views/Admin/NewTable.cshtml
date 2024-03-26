@@ -143,7 +143,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="#">
+                                        <a class="dropdown-item" asp-action="ViewNotes" asp-controller="Admin" >
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-journal-text" viewBox="0 0 16 16">
                                                 <path d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5" />
                                                 <path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2" />
@@ -170,21 +170,27 @@
     </table>
     <nav aria-label="Page navigation example">
         <ul class="pagination">
+            @if (Model.currentPage == 1)
+            {
+                <li class="page-item"><button type="button" disabled onclick="loadPreviousPage(@Model.currentPage)" class="text-muted page-link" href="#">Previous</button></li>
+            }
             @if (Model.currentPage > 1)
             {
-            <li class="page-item"><button type="button" onclick="loadPreviousPage(@Model.currentPage)" id="" class="page-link" href="#">Previous</button></li>
+                <li class="page-item"><button type="button" onclick="loadPreviousPage(@Model.currentPage)" class="page-link" href="#">Previous</button></li>
+
             }
             <li class="page-item"><span class="page-link" href="#">@Model.currentPage</span></li>
-            @if (Model.currentPage != (int)Math.Ceiling((double)20 / 5))
+            @if (Model.currentPage != Model.TotalPage)
             {
                 <li class="page-item"><button type="button" onclick="loadNextPage(@Model.currentPage)" class="page-link" id="">Next</button></li>
-
-            }
+            } 
+            @if (Model.currentPage == Model.TotalPage)
+            {
+                <li class="page-item"><button type="button" disabled onclick="loadNextPage(@Model.currentPage)" class="page-link" id="">Next</button></li>
+            } 
         </ul>
     </nav>
-
     @* ---------------------------------------------------------------------------- *@
-
     @* accordion *@
     <div class="shadow-lg d-md-none d-block">
         @for (int i = 0; i < Model.adminRequests.Count; i++)
@@ -259,14 +265,12 @@
                             </button>
                         </a>
                         <h6 class="w-100">
-
                             <button class="btn border-1 rounded-5 border-info pt-0 ">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-week" viewBox="0 0 16 16">
                                     <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm-3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm-5 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z" />
                                     <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z" />
                                 </svg>
                             </button>
-
                             Date Of Birth: @Model.adminRequests[i].DateOfBirth
                         </h6>
                         <h6 class="w-100">
@@ -312,7 +316,7 @@
 
                             </div>
                             <div class="col-6 px-3">
-                                <a asp-action="ViewNotes" asp-route-id="@Model.adminRequests[i].requestid">
+                                <a asp-action="ViewNotes" asp-controller="Admin" asp-route-id="@Model.adminRequests[i].requestid">
                                     <button class=" border-1 btn-success px-3 rounded-5 btn w-100">View Notes</button>
                                 </a>
                             </div>

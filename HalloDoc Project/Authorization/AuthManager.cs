@@ -30,7 +30,7 @@ public class CustomAuthorize : Attribute, IAuthorizationFilter
         // Redirect to login if not logged in 
         if (token == null || !jwtService.ValidateToken(token, out JwtSecurityToken jwtToken))
         {
-            context.Result = new RedirectToRouteResult(new RouteValueDictionary(new { Controller = "Guest", Action = "submit_request_page" }));
+            context.Result = new RedirectToRouteResult(new RouteValueDictionary(new { Controller = "Guest", Action = "SessionExpired" }));
             return;
         }
 
@@ -41,7 +41,6 @@ public class CustomAuthorize : Attribute, IAuthorizationFilter
             context.Result = new RedirectToRouteResult(new RouteValueDictionary(new { Controller = "Guest", Action = "submit_request_page" }));
             return;
         }
-
 
         if (string.IsNullOrWhiteSpace(_role) || roleClaim.Value != _role)
         {
