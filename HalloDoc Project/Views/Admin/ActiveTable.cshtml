@@ -147,7 +147,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" asp-controller="Admin" asp-action="SendOrders" asp-route-requestid="@Model.adminRequests[i].requestid">
+                                        <a class="dropdown-item" asp-controller="Admin" asp-action="SendOrders" data-requestid="@Model.adminRequests[i].requestid">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-ban" viewBox="0 0 16 16">
                                                 <path d="M15 8a6.97 6.97 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8M2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0" />
                                             </svg>
@@ -155,12 +155,24 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" asp-action="EncounterForm" asp-controller="Admin" asp-route-requestid="@Model.adminRequests[i].requestid">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-ban" viewBox="0 0 16 16">
-                                                <path d="M15 8a6.97 6.97 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8M2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0" />
-                                            </svg>
-                                            Encounter Form
-                                        </a>
+                                        @if (Model.adminRequests[i].isFinalize)
+                                        {
+                                            <button class="dropdown-item" id="FinalizePDF" data-requestid="@Model.adminRequests[i].requestid">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-ban" viewBox="0 0 16 16">
+                                                    <path d="M15 8a6.97 6.97 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8M2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0" />
+                                                </svg>
+                                                Encounter Form
+                                            </button>
+                                        }
+                                        @if (!Model.adminRequests[i].isFinalize)
+                                        {
+                                            <a class="dropdown-item" id="OpenEncounterForm" asp-action="EncounterForm" asp-controller="Admin" asp-route-requestid="@Model.adminRequests[i].requestid">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-ban" viewBox="0 0 16 16">
+                                                    <path d="M15 8a6.97 6.97 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8M2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0" />
+                                                </svg>
+                                                Encounter Form
+                                            </a>
+                                        }
                                     </li>
                                 </ul>
                             </div>
@@ -304,7 +316,7 @@
                         <div class="row gy-2  py-3">
                             <div class="col-6 px-3">
                                 <a class="border-1 btn-danger px-3 rounded-5 btn w-100"
-                                        asp-controller="Admin" asp-action="ViewUploads" asp-route-requestid="@Model.adminRequests[i].requestid">
+                                   asp-controller="Admin" asp-action="ViewUploads" asp-route-requestid="@Model.adminRequests[i].requestid">
                                     View Uploads
                                 </a>
                             </div>
@@ -318,13 +330,13 @@
                             </div>
                             <div class="col-6 px-3">
                                 <a class=" border-1 btn-danger px-3 rounded-5 btn w-100"
-                                        asp-controller="Admin" asp-action="SendOrders" asp-route-requestid="@Model.adminRequests[i].requestid">
+                                   asp-controller="Admin" asp-action="SendOrders" asp-route-requestid="@Model.adminRequests[i].requestid">
                                     Orders
                                 </a>
                             </div>
                             <div class="col-6 px-3">
                                 <a class=" border-1 btn-danger px-3 rounded-5 btn w-100"
-                                        asp-action="EncounterForm" asp-controller="Admin" asp-route-requestid="@Model.adminRequests[i].requestid">
+                                   asp-action="EncounterForm" asp-controller="Admin" asp-route-requestid="@Model.adminRequests[i].requestid">
                                     Encounter
                                 </a>
                             </div>
@@ -342,3 +354,40 @@
         }
     </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="FinalizedFormModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Your Medical Report has been finalized by your Provider.Download the report from below given source.
+                <a class="btn-success btn" asp-action="FinalizeDownload" asp-controller="Admin" asp-route-requestid=58 id="DownloadFinalizePDF" type="button">Download</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // var requestid;
+
+    // requestid = $("#FinalizePDF").data("requestid");
+    $('#FinalizePDF').click(function () {
+        $('#FinalizedFormModal').modal('show');
+    });
+    // $("#DownloadFinalizePDF").click(function () {
+    //     $.ajax({
+    //         url: '/Admin/FinalizeDownload',
+    //         type: 'POST',
+    //         data: { requestid: requestid },
+    //         success: function () {
+    //             console.log("Jiiiiii");
+    //         },
+    //     });
+    // });
+
+</script>

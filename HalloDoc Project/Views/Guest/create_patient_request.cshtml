@@ -38,7 +38,7 @@
     <br>
     <div class="row mb-4 d-flex justify-content-center ">
         <div class="col-11 col-sm-10 col-md-9 col-lg-8 shadow-lg">
-            <form method="post" enctype="multipart/form-data">
+            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                 <div class="row ">
                     <h5 for="" class="mt-4">Patient Information</h5>
                 </div>
@@ -48,7 +48,6 @@
                                   placeholder="Enter Brief Details Of Symptoms(Optional)" style="height: 15vh;" cols="20"
                                   rows="5"></textarea>
                         <label for="forfloatingtextarea" class="ms-2">Enter Brief Details Of Symptoms(Optional)</label>
-
                     </div>
                 </div>
                 <div class="row">
@@ -60,6 +59,7 @@
                     <div class="col-12 col-sm-6 mt-4 form-floating  ">
                         <input type="text" asp-for="LastName" placeholder="Last Name" class="PatientInputs form-control" id="lname">
                         <label for="lname" class="ms-2">Last Name</label>
+
                     </div>
                 </div>
                 <div class="row ">
@@ -82,12 +82,10 @@
                     </div>
                     <div class="col-12 col-sm-6 mt-4 ">
 
-
                         <div class="form-floating ">
-                            <input id="patient-phone" asp-for="PhoneNo" class="PatientInputs form-control" type="tel" name="phone1" />
-                            <span class="validation text-danger" asp-validation-for="PhoneNo"></span>
+                            <input id="patient-phone" asp-for="PhoneNo" class="PatientInputs form-control" type="tel" name="phone1" autocomplete="off" />
+                            <span class="validation" asp-validation-for="PhoneNo"></span>
                         </div>
-
                     </div>
                 </div>
                 <div class="row " id="hiddendiv" style="display:none">
@@ -104,7 +102,7 @@
                         <div class="form-floating ">
                             <input id="confirmpass" asp-for="ConfirmPass" placeholder="Confirm Password" class="PatientInputs form-control" type="password" />
                             <label for="confirmpass">Confirm Password</label>
-                            <span class="validation" asp-validation-for="ConfirmPass" class=""></span>
+                            <span class="validation" asp-validation-for="ConfirmPass">Password and Confirm Password must match.</span>
                         </div>
                     </div>
                 </div>
@@ -116,7 +114,6 @@
                         <div class="form-floating">
                             <input type="text" asp-for="Street" class="PatientInputs form-control" id="floatingEmail" placeholder="Street ">
                             <label for="floatingEmail">Street</label>
-                            <span class="validation" asp-validation-for="Street"></span>
                         </div>
 
                     </div>
@@ -124,7 +121,6 @@
                         <div class="form-floating">
                             <input type="text" asp-for="City" class="PatientInputs form-control" id="floatingCity" placeholder="City">
                             <label for="floatingCity">City</label>
-                            <span class="validation" asp-validation-for="City"></span>
                         </div>
                     </div>
                 </div>
@@ -224,33 +220,7 @@
         </script>
     }
 
-    @*
     <script>
-    $(document).ready(function () {
-    $('#emailfloat').on('blur', function () {
-    var inputValue = $('#emailfloat').val();
-
-    $.get('/Home/PatientCheckEmail', { email: inputValue }, function (response) {
-    if (!response.isValid) {
-    const pass = document.getElementsByClassName("hidden-pass");
-    for (let i = 0; i < pass.length; ++i) {
-    pass[i].style.display = "block";
-    }
-    }
-    else {
-    const pass = document.getElementsByClassName("hidden-pass");
-    for (let i = 0; i < pass.length; ++i) {
-    pass[i].style.display = "none";
-    }
-    }
-    });
-    });
-    });
-    </script> *@
-
-
-    <script>
-
         // bind file-input-form click action to text-input-span
         $('#text_input_span_id').click(function () {
             $("#file_input_id").trigger('click');

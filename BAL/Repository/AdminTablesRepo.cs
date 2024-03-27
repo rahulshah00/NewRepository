@@ -54,6 +54,7 @@ namespace BAL.Repository
             {
                 pageNumber = filter.page;
             }
+
             var adminRequests = (from r in _context.Requests
                                  join rc in _context.Requestclients on r.Requestid equals rc.Requestid
                                  where (filter.RequestTypeFilter == 0 || r.Requesttypeid == filter.RequestTypeFilter)
@@ -70,9 +71,10 @@ namespace BAL.Repository
                                      requestType = r.Requesttypeid,
                                      status = r.Status,
                                      physicianName = "Dr.XYZ",
-                                     servicedate = DateOnly.Parse("22-12-2022")
-                                 }
-                                ).Where(x => x.status == 4 || x.status == 5).Skip((pageNumber - 1) * pagesize).Take(pagesize).ToList();
+                                     servicedate = DateOnly.Parse("22-12-2022"),
+                                     isFinalize = _context.Encounterforms.Where(x=>x.Requestid==r.Requestid).Select(x=>x.Isfinalize).FirstOrDefault(),
+                                 }).Where(x => x.status == 4 || x.status == 5).Skip((pageNumber - 1) * pagesize).Take(pagesize).ToList();
+            
             AdminDashboardViewModel model = new AdminDashboardViewModel()
             {
                 adminRequests = adminRequests,
@@ -104,7 +106,8 @@ namespace BAL.Repository
                                      status = r.Status,
                                      physicianName = "Dr.XYZ",
                                      servicedate = DateOnly.Parse("22-12-2022"),
-                                     email = rc.Email
+                                     email = rc.Email,
+                                     isFinalize = _context.Encounterforms.Where(x => x.Requestid == r.Requestid).Select(x => x.Isfinalize).FirstOrDefault(),
                                  }
                                ).Where(x => x.status == 6).Skip((pageNumber - 1) * pagesize).Take(pagesize).ToList();
             AdminDashboardViewModel model = new AdminDashboardViewModel()

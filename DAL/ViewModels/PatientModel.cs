@@ -15,14 +15,15 @@ namespace DAL.ViewModels
         public string FirstName { get; set; }
         public string? LastName { get; set; }
         [Required]
-        public string DateOfBirth { get; set; }
+        public string DateOfBirth { get; set; } = string.Empty;
         [Required]
-        //[RegularExpression("^([\\w\\.\\-]+)@([\\w\\-]+)((\\.(\\w){2,3})+)$", ErrorMessage = "Enter Valid Email")]
-        public string Email { get; set; }
+        [RegularExpression("^([\\w\\.\\-]+)@([\\w\\-]+)((\\.(\\w){2,3})+)$", ErrorMessage = "Enter Valid Email")]
+        public string Email { get; set; } = string.Empty;
 
-        //[RegularExpression(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$",ErrorMessage = "Entered phone format is not valid.")]
+        [Required]
+        [RegularExpression(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$", ErrorMessage = "Entered phone format is not valid.")]
         [DataType(DataType.PhoneNumber)]
-        public string? PhoneNo { get; set; }
+        public string PhoneNo { get; set; }=string.Empty;
    
         public string? Street  { get; set; }
 
@@ -36,7 +37,7 @@ namespace DAL.ViewModels
 
         public IFormFile? File{ get; set; }
         public string? Password { get; set; }
-        [Compare("Password", ErrorMessage = "Password and Confirm Password should be same.")]
+        [Compare("Password", ErrorMessage = "Password and Confirm-Password should have same value.")]
         public string? ConfirmPass{ get; set; }
         
     }

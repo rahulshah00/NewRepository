@@ -26,6 +26,7 @@ namespace DAL.ViewModels
         public List<ExcelFileViewModel> excelfiles { get; set; }
         public int? currentPage { get; set; }
         public int? TotalPage { get; set; }
+        public bool isFinalize {  get; set; }
 
     }
 }

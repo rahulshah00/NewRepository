@@ -25,5 +25,6 @@ namespace DAL.ViewModels
         public string region { get; set; }
         public int requestid {  get; set; }
         public string email {  get; set; }
+        public bool isFinalize {  get; set; }
     }
 }

@@ -9,6 +9,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using ClosedXML.Excel;
 using Rotativa.AspNetCore;
 using DocumentFormat.OpenXml.Bibliography;
+using System.Linq;
 
 namespace HalloDoc_Project.Controllers
 {
@@ -103,6 +104,10 @@ namespace HalloDoc_Project.Controllers
 
             return Ok();
         }
+        public IActionResult ProviderMenu()
+        {
+            return View();
+        }
         public IActionResult ViewNotes(int requestid)
         {
             ViewCaseViewModel vn = new ViewCaseViewModel();
@@ -150,30 +155,31 @@ namespace HalloDoc_Project.Controllers
             return View();
         }
         public IActionResult AdminDashboard()
-         {
+        {
             //var email = HttpContext.Session.GetString("Email");
             //AdminDashboardViewModel advm = _adminTables.AdminDashboard(email);
             //return View(advm,this.ExcelFile());
             var email = HttpContext.Session.GetString("Email");
             AdminDashboardViewModel advm = _adminTables.AdminDashboard(email);
-             //advm.excelfiles = this.;
+            //advm.excelfiles = this.;
             return View(advm);
         }
-
-        public ActionResult ExportToExcel(int dashboardstatus, int page, int region, int type, string search)
+        [HttpPost]
+        public byte[] ExportToExcel(int status, int page, int region, int type, string search)
         {
             var workbook = new XLWorkbook();
             var worksheet = workbook.Worksheets.Add("EmployeeList");
 
-            // Add headers
+            // Add headers with yellow background color
             var headers = new string[] { "Name", "PhoneNo", "Email", "Requestid", "Status", "Address", "RequestTypeId", "UserID" };
+            var headerCell = worksheet.Cell(1, 1);
             for (int i = 0; i < headers.Length; i++)
             {
                 worksheet.Cell(1, i + 1).Value = headers[i];
             }
-
+            
             // Get employee data (assuming GetEmployeeList() returns a list of employees)
-            var records = ExcelFile( dashboardstatus, page, region, type, search);
+            var records = ExcelFile(status, page, region, type, search);
             for (int i = 0; i < records.Count; i++)
             {
                 worksheet.Cell(i + 2, 1).Value = records[i].Name;
@@ -192,12 +198,12 @@ namespace HalloDoc_Project.Controllers
             stream.Position = 0;
 
             // Return the Excel file
-            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "RequestDataExcel.xlsx");
+            return stream.ToArray();
 
         }
-        public List<ExcelFileViewModel> ExcelFile(int dashboardstatus,int page, int region, int type, string search)
+        public List<ExcelFileViewModel> ExcelFile(int dashboardstatus, int page, int region, int type, string search)
         {
-            List< ExcelFileViewModel > ExcelData = new List< ExcelFileViewModel >();
+            List<ExcelFileViewModel> ExcelData = new List<ExcelFileViewModel>();
             int pagesize = 5;
             int pageNumber = 1;
             if (page > 0)
@@ -212,35 +218,149 @@ namespace HalloDoc_Project.Controllers
                 pageNumber = pageNumber,
                 pageSize = pagesize,
                 page = page,
+                status=dashboardstatus
             };
-            switch (dashboardstatus)
+
+            List<short> validRequestTypes = new List<short>();
+            switch (filter.status)
             {
-                case 1:
-                    pagesize = 5;
-                    pageNumber = 1;
-                    if (filter.page > 0)
-                    {
-                        pageNumber = filter.page;
-                    }
-                     ExcelData = (from r in _context.Requests
-                                         join rc in _context.Requestclients on r.Requestid equals rc.Requestid
-                                         where (filter.RequestTypeFilter == 0 || r.Requesttypeid == filter.RequestTypeFilter)
-                                         && (filter.RegionFilter == 0 || rc.Regionid == filter.RegionFilter)
-                                         && (string.IsNullOrEmpty(filter.PatientSearchText) || (rc.Firstname + " " + rc.Lastname).ToLower().Contains(filter.PatientSearchText.ToLower()))
-                                         select new ExcelFileViewModel
-                                         {
-                                             requestid = r.Requestid,
-                                             Name = rc.Firstname + " " + rc.Lastname,
-                                             email=rc.Email,
-                                             PhoneNo = rc.Phonenumber,
-                                             address = rc.Address,
-                                             requesttypeid= r.Requesttypeid,
-                                             status = r.Status
-                                         }).Where(x => x.status == 1).ToList();
+                case (int)DashboardStatus.New:
+                    validRequestTypes.Add((short)RequestStatus.Unassigned);
                     break;
-                default:
+                case (int)DashboardStatus.Pending:
+                    validRequestTypes.Add((short)RequestStatus.Accepted);
+                    break;
+                case (int)DashboardStatus.Active:
+                    validRequestTypes.Add((short)RequestStatus.MDEnRoute);
+                    validRequestTypes.Add((short)RequestStatus.MDOnSite);
+                    break;
+                case (int)DashboardStatus.Conclude:
+                    validRequestTypes.Add((short)RequestStatus.Conclude);
+                    break;
+                case (int)DashboardStatus.ToClose:
+                    validRequestTypes.Add((short)RequestStatus.Cancelled);
+                    validRequestTypes.Add((short)RequestStatus.CancelledByPatient);
+                    validRequestTypes.Add((short)RequestStatus.Closed);
+
+                    break;
+                case (int)DashboardStatus.Unpaid:
+                    validRequestTypes.Add((short)RequestStatus.Unpaid);
                     break;
             }
+            pagesize = 5;
+            pageNumber = 1;
+            if (filter.page > 0)
+            {
+                pageNumber = filter.page;
+            }
+            ExcelData = (from r in _context.Requests
+                         join rc in _context.Requestclients on r.Requestid equals rc.Requestid
+                         where (filter.RequestTypeFilter == 0 || r.Requesttypeid == filter.RequestTypeFilter)
+                         && (filter.RegionFilter == 0 || rc.Regionid == filter.RegionFilter)
+                         && (validRequestTypes.Contains(r.Status))
+                         && (string.IsNullOrEmpty(filter.PatientSearchText) || (rc.Firstname + " " + rc.Lastname).ToLower().Contains(filter.PatientSearchText.ToLower()))
+                         select new ExcelFileViewModel
+                         {
+                             requestid = r.Requestid,
+                             Name = rc.Firstname + " " + rc.Lastname,
+                             email = rc.Email,
+                             PhoneNo = rc.Phonenumber,
+                             address = rc.Address,
+                             requesttypeid = r.Requesttypeid,
+                             status = r.Status
+                         }).Skip((pageNumber - 1) * pagesize).Take(pagesize).ToList();
+            return ExcelData;
+        }
+
+        [HttpPost]
+        public byte[] ExportAllToExcel(int status)
+        {
+            var workbook = new XLWorkbook();
+            var worksheet = workbook.Worksheets.Add("EmployeeList");
+
+            // Add headers with yellow background color
+            var headers = new string[] { "Name", "PhoneNo", "Email", "Requestid", "Status", "Address", "RequestTypeId", "UserID" };
+            var headerCell = worksheet.Cell(1, 1);
+            var headerStyle = headerCell.Style;
+            for (int i = 0; i < headers.Length; i++)
+            {
+                worksheet.Cell(1, i + 1).Value = headers[i];
+            }
+
+            // Get employee data (assuming GetEmployeeList() returns a list of employees)
+            var records = ExcelFileExportAll(status);
+            for (int i = 0; i < records.Count; i++)
+            {
+                worksheet.Cell(i + 2, 1).Value = records[i].Name;
+                worksheet.Cell(i + 2, 2).Value = records[i].PhoneNo;
+                worksheet.Cell(i + 2, 3).Value = records[i].email;
+                worksheet.Cell(i + 2, 4).Value = records[i].requestid;
+                worksheet.Cell(i + 2, 5).Value = records[i].status;
+                worksheet.Cell(i + 2, 6).Value = records[i].address;
+                worksheet.Cell(i + 2, 7).Value = records[i].requesttypeid;
+                worksheet.Cell(i + 2, 8).Value = records[i].userid;
+            }
+
+            // Prepare the response
+            MemoryStream stream = new MemoryStream();
+            workbook.SaveAs(stream);
+            stream.Position = 0;
+
+            // Return the Excel file
+            return stream.ToArray();
+
+        }
+        public List<ExcelFileViewModel> ExcelFileExportAll(int dashboardstatus)
+        {
+            List<ExcelFileViewModel> ExcelData = new List<ExcelFileViewModel>();
+            int pagesize = 5;
+            int pageNumber = 1;
+            
+            DashboardFilter filter = new DashboardFilter()
+            {
+                status = dashboardstatus
+            };
+
+            List<short> validRequestTypes = new List<short>();
+            switch (filter.status)
+            {
+                case (int)DashboardStatus.New:
+                    validRequestTypes.Add((short)RequestStatus.Unassigned);
+                    break;
+                case (int)DashboardStatus.Pending:
+                    validRequestTypes.Add((short)RequestStatus.Accepted);
+                    break;
+                case (int)DashboardStatus.Active:
+                    validRequestTypes.Add((short)RequestStatus.MDEnRoute);
+                    validRequestTypes.Add((short)RequestStatus.MDOnSite);
+                    break;
+                case (int)DashboardStatus.Conclude:
+                    validRequestTypes.Add((short)RequestStatus.Conclude);
+                    break;
+                case (int)DashboardStatus.ToClose:
+                    validRequestTypes.Add((short)RequestStatus.Cancelled);
+                    validRequestTypes.Add((short)RequestStatus.CancelledByPatient);
+                    validRequestTypes.Add((short)RequestStatus.Closed);
+
+                    break;
+                case (int)DashboardStatus.Unpaid:
+                    validRequestTypes.Add((short)RequestStatus.Unpaid);
+                    break;
+            }
+            
+            ExcelData = (from r in _context.Requests
+                         join rc in _context.Requestclients on r.Requestid equals rc.Requestid
+                         where (validRequestTypes.Contains(r.Status))
+                         select new ExcelFileViewModel
+                         {
+                             requestid = r.Requestid,
+                             Name = rc.Firstname + " " + rc.Lastname,
+                             email = rc.Email,
+                             PhoneNo = rc.Phonenumber,
+                             address = rc.Address,
+                             requesttypeid = r.Requesttypeid,
+                             status = r.Status
+                         }).ToList();
             return ExcelData;
         }
         [HttpPost]
@@ -417,8 +537,9 @@ namespace HalloDoc_Project.Controllers
             return PartialView("NewTable", model);
         }
         [HttpPost]
-        public IActionResult ActiveTable(int page,int region, int type, string search)
+        public IActionResult ActiveTable(int page, int region, int type, string search)
         {
+
             int pagesize = 5;
             int pageNumber = 1;
             if (page > 0)
@@ -485,7 +606,7 @@ namespace HalloDoc_Project.Controllers
             return PartialView("ConcludeTable", model);
         }
         [HttpPost]
-        public IActionResult ToCloseTable(int page ,int region, int type, string search)
+        public IActionResult ToCloseTable(int page, int region, int type, string search)
         {
             int pagesize = 5;
             int pageNumber = 1;
@@ -705,7 +826,7 @@ namespace HalloDoc_Project.Controllers
             _adminActions.SendOrderAction(requestid, sendOrder);
             return SendOrders(requestid);
         }
-        
+
         public List<Healthprofessional> filterVenByPro(string ProfessionId)
         {
             var result = _context.Healthprofessionals.Where(u => u.Profession == int.Parse(ProfessionId)).ToList();
