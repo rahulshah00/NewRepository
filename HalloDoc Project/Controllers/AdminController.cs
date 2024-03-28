@@ -10,6 +10,8 @@ using ClosedXML.Excel;
 using Rotativa.AspNetCore;
 using DocumentFormat.OpenXml.Bibliography;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Scaffolding;
+using System.Net.Mail;
 
 namespace HalloDoc_Project.Controllers
 {
@@ -104,10 +106,60 @@ namespace HalloDoc_Project.Controllers
 
             return Ok();
         }
-        public IActionResult ProviderMenu()
+        public IActionResult ProviderMenu(ProviderMenuViewModel ProviderMenuData)
         {
-            return View();
+            ProviderMenuData.Region = _context.Regions.ToList();
+
+            var DoctorDetails = (from p in _context.Physicians
+                                 join ph in _context.Physiciannotifications on p.Physicianid equals ph.Physicianid into notigroup
+                                 from notiitem in notigroup.DefaultIfEmpty()
+                                 select new Providers
+                                 {
+                                     PhysicianId = p.Physicianid,
+                                     Name = p.Firstname + " " + p.Lastname,
+                                     ProviderStatus = p.Status ?? 0,
+                                     Email = p.Email,
+                                     Notification = notiitem.Isnotificationstopped ? true: false,
+                                     Role = p.Roleid ?? 0
+                                 }).ToList();
+            ProviderMenuData.providers = DoctorDetails;
+
+            return View("ProviderViews/ProviderMenu", ProviderMenuData);
         }
+        public void UpdateNotifications(int PhysicianId)
+        {
+            var PhysicianNotification=_context.Physiciannotifications.FirstOrDefault(x=>x.Physicianid== PhysicianId);
+            if (PhysicianNotification.Isnotificationstopped)
+            {
+                PhysicianNotification.Isnotificationstopped = false;
+            }
+            else if(!PhysicianNotification.Isnotificationstopped)
+            {
+                PhysicianNotification.Isnotificationstopped = true;
+            }
+            _context.Physiciannotifications.Update(PhysicianNotification);
+            _context.SaveChanges();
+        }
+        [HttpPost]
+        public IActionResult SendEmailToProvider(String RadioButtonValue,String EmailMessage,String PhysicianId)
+        {
+            var physician = _context.Physicians.FirstOrDefault(x=>x.Physicianid== int.Parse(PhysicianId));
+            if (RadioButtonValue == "1")
+            {
+
+            }
+            if (RadioButtonValue == "2" && physician.Email!=null)
+            {
+                _emailService.SendEmailMessage(EmailMessage,physician.Email);
+            }
+            else if(RadioButtonValue == "3")
+            {
+
+            }
+            return Ok();
+
+        }
+
         public IActionResult ViewNotes(int requestid)
         {
             ViewCaseViewModel vn = new ViewCaseViewModel();
@@ -177,7 +229,7 @@ namespace HalloDoc_Project.Controllers
             {
                 worksheet.Cell(1, i + 1).Value = headers[i];
             }
-            
+
             // Get employee data (assuming GetEmployeeList() returns a list of employees)
             var records = ExcelFile(status, page, region, type, search);
             for (int i = 0; i < records.Count; i++)
@@ -218,7 +270,7 @@ namespace HalloDoc_Project.Controllers
                 pageNumber = pageNumber,
                 pageSize = pagesize,
                 page = page,
-                status=dashboardstatus
+                status = dashboardstatus
             };
 
             List<short> validRequestTypes = new List<short>();
@@ -315,7 +367,7 @@ namespace HalloDoc_Project.Controllers
             List<ExcelFileViewModel> ExcelData = new List<ExcelFileViewModel>();
             int pagesize = 5;
             int pageNumber = 1;
-            
+
             DashboardFilter filter = new DashboardFilter()
             {
                 status = dashboardstatus
@@ -347,7 +399,7 @@ namespace HalloDoc_Project.Controllers
                     validRequestTypes.Add((short)RequestStatus.Unpaid);
                     break;
             }
-            
+
             ExcelData = (from r in _context.Requests
                          join rc in _context.Requestclients on r.Requestid equals rc.Requestid
                          where (validRequestTypes.Contains(r.Status))
@@ -651,6 +703,7 @@ namespace HalloDoc_Project.Controllers
 
             return PartialView("UnpaidTable", model);
         }
+        [HttpGet]
         public IActionResult FinalizeDownload(int requestid)
         {
             var EncounterModel = _encounterForm.EncounterFormGet(requestid);
@@ -666,7 +719,25 @@ namespace HalloDoc_Project.Controllers
         public IActionResult EncounterForm(int requestId, EncounterFormViewModel EncModel)
         {
             EncModel = _encounterForm.EncounterFormGet(requestId);
+            var RequestExistStatus = _context.Encounterforms.FirstOrDefault(x => x.Requestid == requestId);
+            if (RequestExistStatus == null)
+            {
+                EncModel.ifExist = false;
+            }
+            if (RequestExistStatus != null)
+            {
+                EncModel.ifExist = true;
+            }
             return View(EncModel);
+        }
+        public IActionResult FinalizeForm(int requestid)
+        {
+            var encounterRecord = _context.Encounterforms.FirstOrDefault(x => x.Requestid == requestid);
+            encounterRecord.Isfinalize = true;
+            _context.Encounterforms.Update(encounterRecord);
+            _context.SaveChanges();
+
+            return RedirectToAction("AdminDashboard", "Admin");
         }
         [HttpPost]
         public IActionResult EncounterForm(EncounterFormViewModel model)

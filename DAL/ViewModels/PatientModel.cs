@@ -17,12 +17,12 @@ namespace DAL.ViewModels
         [Required]
         public string DateOfBirth { get; set; } = string.Empty;
         [Required]
-        [RegularExpression("^([\\w\\.\\-]+)@([\\w\\-]+)((\\.(\\w){2,3})+)$", ErrorMessage = "Enter Valid Email")]
+        //[RegularExpression("^([\\w\\.\\-]+)@([\\w\\-]+)((\\.(\\w){2,3})+)$", ErrorMessage = "Enter Valid Email")]
         public string Email { get; set; } = string.Empty;
 
         [Required]
-        [RegularExpression(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$", ErrorMessage = "Entered phone format is not valid.")]
-        [DataType(DataType.PhoneNumber)]
+        //[RegularExpression(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$", ErrorMessage = "Entered phone format is not valid.")]
+        //[DataType(DataType.PhoneNumber)]
         public string PhoneNo { get; set; }=string.Empty;
    
         public string? Street  { get; set; }

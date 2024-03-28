@@ -740,8 +740,7 @@
     // });
 
     $("#searchBtn").on("keydown", function (e) {
-        if (e.code === "Enter") 
-        {  //checks whether the pressed key is "Enter"
+        if (e.code === "Enter") {  //checks whether the pressed key is "Enter"
             var searchValue = $(this).val().toLowerCase();
             search_filter = searchValue;
             LoadPartialTables(pageNo);
@@ -988,10 +987,10 @@
 </script>
 
 <script>
-    
-    $('#ExportButton').click( function () {
 
-        console.log( "status : " + dashboardStatus);
+    $('#ExportButton').click(function () {
+
+        console.log("status : " + dashboardStatus);
 
         $.ajax({
             url: '/Admin/ExportToExcel',
@@ -1020,7 +1019,7 @@
         $.ajax({
             url: '/Admin/ExportAllToExcel',
             type: 'POST',
-            data: { status: dashboardStatus},
+            data: { status: dashboardStatus },
             success: function (data) {
                 console.log('success');
                 var link = document.createElement('a');
@@ -1049,6 +1048,8 @@
         });
     })
 </script>
+
+
 <script>
     $('.admin-tab').removeClass('active-tab');
     $('#dashboard-tab').addClass('active-tab');

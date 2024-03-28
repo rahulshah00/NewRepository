@@ -117,5 +117,25 @@ namespace BAL.Repository
             mailMessage.To.Add(email);
             smtpClient.Send(mailMessage);
         }
+        void IEmailService.SendEmailMessage(String message,String email)
+        {
+            var smtpClient = new SmtpClient("smtp.office365.com")
+            {
+                Port = 587,
+                Credentials = new NetworkCredential("tatva.dotnet.rahulshah@outlook.com", "@08RahulTatvA"),
+                EnableSsl = true,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = false
+            };
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress("tatva.dotnet.rahulshah@outlook.com"),
+                Subject = "Admin Wants to contact you",
+                Body = "<p>Hello Provider, your admin want to contact you and has sent a message for you </p>"+message,
+                IsBodyHtml = true
+            };
+            mailMessage.To.Add(email);
+            smtpClient.Send(mailMessage);
+        }
     }
 }

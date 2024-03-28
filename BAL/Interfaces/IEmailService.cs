@@ -13,5 +13,6 @@ namespace BAL.Interfaces
         public void SendAgreementLink(int requestid, string link,string email);
         public void SendEmailForPasswordReset(ForgotPasswordViewModel fvm,string ResetLink);
         public void SendEmailWithLink(string firstname, string lastname, string email,string link);
+        public void SendEmailMessage(String message, String email);
     }
 }

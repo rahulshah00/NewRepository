@@ -196,7 +196,10 @@
                 </div>
             </div>
             <div class="text-end">
-                <a class="btn-success btn" asp-action="FinalizeDownload" asp-controller="Admin" asp-route-requestid="@Model.requestId" type="button">Finalize</a>   
+                @if (Model.ifExist)
+                {
+                    <a class="btn-success btn" asp-action="FinalizeForm" asp-controller="Admin" asp-route-requestid="@Model.requestId">Finalize</a>
+                }
                 <button class="btn btn-info text-white" type="submit">Submit</button>
                 <button class="btn btn-danger" type="reset">Cancel</button>
             </div>

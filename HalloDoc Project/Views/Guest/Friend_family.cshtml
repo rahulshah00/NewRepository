@@ -146,7 +146,7 @@
                 <div class="row">
                     <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating ">
-                            <input id="famfrnd-phone" asp-for="phone" class="PatientInputs form-control" type="tel" name="phone1"></input>
+                            <input id="famfrnd-phone" asp-for="phone" class="PatientInputs form-control" type="tel" ></input>
                         </div>
                     </div>
                     <div class="col-12 col-sm-6 mt-4">
@@ -169,7 +169,7 @@
                 </div>
                 <div class="row mt-4">
                     <div class="col-12 form-floating ">
-                        <textarea name="" asp-for="PatientModel.Symptoms" class="PatientInputs form-control" id="forfloatingtextarea"
+                        <textarea asp-for="PatientModel.Symptoms" class="PatientInputs form-control" id="forfloatingtextarea"
                                   placeholder="Enter Brief Details Of Symptoms (Optional)" style="height: 15vh;" cols="20"
                                   rows="5"></textarea>
                         <label for="forfloatingtextarea" class="ms-2">Enter Brief Details Of Symptoms (Optional)</label>
@@ -204,7 +204,7 @@
                     <div class="col-12 col-sm-6 mt-4 ">
 
                         <div class="form-floating ">
-                            <input id="patient-phone" asp-for="phone" class="PatientInputs form-control" type="tel" name="phone1"></input>
+                            <input id="patient-phone" asp-for="PatientModel.PhoneNo" class="PatientInputs form-control" type="tel"></input>
                         </div>
 
 

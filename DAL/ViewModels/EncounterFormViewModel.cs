@@ -39,6 +39,6 @@ namespace DAL.ViewModels
         public string? procedures { get; set; }
         public string? followUps { get; set; }
         public int requestId { get; set; }
-        public bool isFinalize {  get; set; }
+        public bool ifExist { get; set; } 
     }
 }

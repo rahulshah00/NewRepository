@@ -157,7 +157,7 @@
                                     <li>
                                         @if (Model.adminRequests[i].isFinalize)
                                         {
-                                            <button class="dropdown-item" id="FinalizePDF" data-requestid="@Model.adminRequests[i].requestid">
+                                            <button class="dropdown-item" id="FinalizePDF" onclick="OpenModal()" data-requestid="@Model.adminRequests[i].requestid">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-ban" viewBox="0 0 16 16">
                                                     <path d="M15 8a6.97 6.97 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8M2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0" />
                                                 </svg>
@@ -166,7 +166,7 @@
                                         }
                                         @if (!Model.adminRequests[i].isFinalize)
                                         {
-                                            <a class="dropdown-item" id="OpenEncounterForm" asp-action="EncounterForm" asp-controller="Admin" asp-route-requestid="@Model.adminRequests[i].requestid">
+                                            <a class="dropdown-item" asp-action="EncounterForm" asp-controller="Admin" asp-route-requestid="@Model.adminRequests[i].requestid">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-ban" viewBox="0 0 16 16">
                                                     <path d="M15 8a6.97 6.97 0 0 0-1.71-4.584l-9.874 9.875A7 7 0 0 0 15 8M2.71 12.584l9.874-9.875a7 7 0 0 0-9.874 9.874ZM16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0" />
                                                 </svg>
@@ -359,35 +359,41 @@
 <div class="modal fade" id="FinalizedFormModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+            <div class="modal-header bg-info">
+                <h5 class="modal-title text-light" id="exampleModalLongTitle">Encounter Form -> FINALIZED</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Your Medical Report has been finalized by your Provider.Download the report from below given source.
-                <a class="btn-success btn" asp-action="FinalizeDownload" asp-controller="Admin" asp-route-requestid=58 id="DownloadFinalizePDF" type="button">Download</a>
+                Your Medical Report has been finalized by your Provider.
+                Download the report from below given source.
+            </div>
+            <div class="modal-footer">
+                <div class="d-flex justify-content-end">
+                    <a class="btn-info text-end text-light btn" id="DownloadFinalizePDF">Download</a>
+                </div>
             </div>
         </div>
     </div>
 </div>
 <script>
-    // var requestid;
-
-    // requestid = $("#FinalizePDF").data("requestid");
-    $('#FinalizePDF').click(function () {
-        $('#FinalizedFormModal').modal('show');
-    });
-    // $("#DownloadFinalizePDF").click(function () {
-    //     $.ajax({
-    //         url: '/Admin/FinalizeDownload',
-    //         type: 'POST',
-    //         data: { requestid: requestid },
-    //         success: function () {
-    //             console.log("Jiiiiii");
-    //         },
-    //     });
+    var requestid;
+    //script to open the finalize modal
+    requestid = $("#FinalizePDF").data("requestid");
+    // $('#FinalizePDF').click(function () {
+    //     alert("modal open")
+    //     $('#FinalizedFormModal').modal('show');
     // });
+    function OpenModal() {
+        $('#FinalizedFormModal').modal('show');
+    }
+    //while using ajax there was an issue that in the finalizedownload method of controller we
+    //were returning a file which was passed into the success method of ajax but
+    //in the ajax success state we were not handling the file and hence the download operation was not working
 
+    //so instead here , on click we have redirected the admin to a url
+    //that calls finalizedownload along with the request id of the
+    //which in return downloads the pdf
+    $("#DownloadFinalizePDF").click(function () {
+        location.href = "https://localhost:7090/Admin/FinalizeDownload?requestid=" + requestid;
+    });
 </script>
