@@ -12,6 +12,7 @@ using DocumentFormat.OpenXml.Bibliography;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using System.Net.Mail;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HalloDoc_Project.Controllers
 {
@@ -101,9 +102,36 @@ namespace HalloDoc_Project.Controllers
         {
             return Ok();
         }
+        public IActionResult EditPhysicianProfile(EditPhysicianViewModel EditPhysician, int PhysicianId)
+        {
+            var Physician = _context.Physicians.FirstOrDefault(x=>x.Physicianid==PhysicianId);
+            var PhysicianAspData = _context.Aspnetusers.FirstOrDefault(x=>x.Id==Physician.Aspnetuserid);
+            if (Physician != null)
+            {
+                EditPhysician.PhysicianId = PhysicianId;
+                EditPhysician.PhoneNo = Physician.Mobile;
+                EditPhysician.Status = Physician.Status;
+                EditPhysician.Role = Physician.Roleid;
+                EditPhysician.Email = Physician.Email;
+                EditPhysician.FirstName = Physician.Firstname;
+                EditPhysician.LastName = Physician.Lastname;
+                EditPhysician.MedicalLicense = Physician.Medicallicense;
+                EditPhysician.NPINumber = Physician.Npinumber;
+                EditPhysician.SyncEmail = Physician.Syncemailaddress;
+                EditPhysician.Address1 = Physician.Address1;
+                EditPhysician.Address2= Physician.Address2;
+                EditPhysician.City = Physician.City;
+                EditPhysician.States = _context.Regions.ToList();
+                EditPhysician.ZipCode = Physician.Zip;
+                EditPhysician.BillingPhoneNo = Physician.Altphone;
+                EditPhysician.BusinessName=Physician.Businessname;
+                EditPhysician.BusinessWebsite=Physician.Businesswebsite;
+                EditPhysician.PhysicianUsername = PhysicianAspData.Username;
+            }
+            return View("ProviderViews/EditPhysicianProfile",EditPhysician);
+        }
         public ActionResult BlockCase(String blockreason)
         {
-
             return Ok();
         }
         public IActionResult ProviderMenu(ProviderMenuViewModel ProviderMenuData)
@@ -123,7 +151,6 @@ namespace HalloDoc_Project.Controllers
                                      Role = p.Roleid ?? 0
                                  }).ToList();
             ProviderMenuData.providers = DoctorDetails;
-
             return View("ProviderViews/ProviderMenu", ProviderMenuData);
         }
         public void UpdateNotifications(int PhysicianId)
@@ -157,7 +184,10 @@ namespace HalloDoc_Project.Controllers
 
             }
             return Ok();
-
+        }
+        public IActionResult CreatePhysicianAccount()
+        {
+            return View("ProviderViews/CreatePhysicianAccount");
         }
 
         public IActionResult ViewNotes(int requestid)

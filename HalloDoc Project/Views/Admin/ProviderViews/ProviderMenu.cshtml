@@ -22,9 +22,9 @@
                             </select>
                         </div>
                         <div>
-                            <button class="btn-info text-light btn">
+                            <a asp-action="CreatePhysicianAccount" asp-controller="Admin" class="btn-info text-light btn">
                                 Create Provider Account
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -92,7 +92,7 @@
                                 </td>
                                 <td>
                                     <button class="btn btn-outline-info" id="ProviderContactButton" onclick="OpenContactModal(this)" data-physicianid="@Model.providers[i].PhysicianId">Contact</button>
-                                    <button class="btn btn-outline-info">Edit</button>
+                                    <a class="btn btn-outline-info" asp-action="EditPhysicianProfile" asp-controller="Admin" >Edit</a>
                                 </td>
                             </tr>
                         }
