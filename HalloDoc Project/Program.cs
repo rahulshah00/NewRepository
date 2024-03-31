@@ -1,10 +1,14 @@
+using AspNetCoreHero.ToastNotification;
+using AspNetCoreHero.ToastNotification.Extensions;
 using BAL.Interfaces;
 using BAL.Repository;
 using DAL.DataContext;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Rotativa.AspNetCore;
 using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +29,13 @@ builder.Services.AddScoped<IAdminActions, AdminActionsRepo>();
 builder.Services.AddScoped<IPatientDashboard,PatientDashboardRepo>();
 builder.Services.AddScoped<IEncounterForm, EncounterFormRepo>();
 builder.Services.AddScoped<IAdmin,AdminRepo>();
+
+builder.Services.AddNotyf(config =>
+{
+    config.DurationInSeconds = 5; config.IsDismissable = false;
+    config.HasRippleEffect = true;
+    config.Position = NotyfPosition.TopRight;
+});
 
 //For Creating a session
 builder.Services.AddSession(options =>
@@ -58,6 +69,7 @@ var app = builder.Build();
 
 
 
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -73,6 +85,7 @@ app.UseRouting();
 app.UseSession();
 
 app.UseAuthorization();
+app.UseNotyf();
 
 app.MapControllerRoute(
     name: "default",

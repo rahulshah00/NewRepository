@@ -26,7 +26,7 @@ namespace BAL.Repository
             Aspnetuser user = _context.Aspnetusers.FirstOrDefault(x => x.Email == email);
             Admin admin = _context.Admins.FirstOrDefault(x => x.Email == email);
             //Region reg = _context.Regions.FirstOrDefault(x => x.Regionid == admin.Regionid);
-
+            
             AdminProfileViewModel model = new AdminProfileViewModel()
             {
                 region = _context.Regions.ToList(),

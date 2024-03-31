@@ -4,15 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using DAL.DataContext;
 using System.Text;
 using BAL.Interfaces;
-using DocumentFormat.OpenXml.Office2010.CustomUI;
-using DocumentFormat.OpenXml.Wordprocessing;
 using ClosedXML.Excel;
 using Rotativa.AspNetCore;
-using DocumentFormat.OpenXml.Bibliography;
-using System.Linq;
-using Microsoft.EntityFrameworkCore.Scaffolding;
-using System.Net.Mail;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HalloDoc_Project.Controllers
 {
@@ -102,6 +95,17 @@ namespace HalloDoc_Project.Controllers
         {
             return Ok();
         }
+        public IActionResult AccountAccess()
+        {
+            return View("AccessViews/AccountAccess");
+        }
+        public IActionResult CreateRole(CreateRoleViewModel RoleModel)
+        {
+            RoleModel.AccountType = _context.Aspnetroles.ToList();
+            RoleModel.AccessMenu = _context.Menus.ToList();
+            return View("AccessViews/CreateRole");
+        }
+        
         public IActionResult EditPhysicianProfile(EditPhysicianViewModel EditPhysician, int PhysicianId)
         {
             var Physician = _context.Physicians.FirstOrDefault(x=>x.Physicianid==PhysicianId);
@@ -129,6 +133,52 @@ namespace HalloDoc_Project.Controllers
                 EditPhysician.PhysicianUsername = PhysicianAspData.Username;
             }
             return View("ProviderViews/EditPhysicianProfile",EditPhysician);
+        }
+        [HttpPost]
+        public IActionResult SubmitPhysicianAccountInfo(EditPhysicianViewModel PhysicianAccountInfo)
+        {
+            return EditPhysicianProfile(PhysicianAccountInfo, PhysicianAccountInfo.PhysicianId);
+        }
+        [HttpPost]
+        public IActionResult SubmitPhysicianInfo(EditPhysicianViewModel PhysicianInfoModel)
+        {
+            //ADDING REGION ID IS REMAINING
+            var Physician = _context.Physicians.FirstOrDefault(x=>x.Physicianid==PhysicianInfoModel.PhysicianId);
+            if (Physician != null)
+            {
+                Physician.Firstname = PhysicianInfoModel.FirstName;
+                Physician.Lastname = PhysicianInfoModel.LastName;
+                Physician.Email = PhysicianInfoModel.Email;
+                Physician.Mobile = PhysicianInfoModel.PhoneNo;
+                Physician.Medicallicense = PhysicianInfoModel.MedicalLicense;
+                Physician.Npinumber = PhysicianInfoModel.NPINumber;
+                Physician.Syncemailaddress = PhysicianInfoModel.SyncEmail;
+            }
+            _context.Physicians.Update(Physician);
+            _context.SaveChanges();
+            return EditPhysicianProfile(PhysicianInfoModel,PhysicianInfoModel.PhysicianId);
+        }
+        [HttpPost]
+        public IActionResult SubmitPhysicianMailingBillingDetails(EditPhysicianViewModel MailingBillingModel)
+        {
+            var Physician = _context.Physicians.FirstOrDefault(x=>x.Physicianid==MailingBillingModel.PhysicianId);
+            if (Physician != null)
+            {
+                Physician.Address1 = MailingBillingModel.Address1;
+                Physician.Address2=MailingBillingModel.Address2;
+                Physician.City=MailingBillingModel.City;
+                Physician.Regionid = MailingBillingModel.Regionid;
+                Physician.Zip = MailingBillingModel.ZipCode;
+                Physician.Altphone = MailingBillingModel.BillingPhoneNo;
+            }
+            _context.Physicians.Update(Physician);
+            _context.SaveChanges();
+            return EditPhysicianProfile(MailingBillingModel, MailingBillingModel.PhysicianId);
+        }
+        [HttpPost]
+        public IActionResult EditPhysicianProfile(EditPhysicianViewModel EditPhysician)
+        {
+            return Ok();
         }
         public ActionResult BlockCase(String blockreason)
         {
@@ -184,6 +234,10 @@ namespace HalloDoc_Project.Controllers
 
             }
             return Ok();
+        }
+        public IActionResult PhysicianLocation()
+        {
+            return View();
         }
         public IActionResult CreatePhysicianAccount()
         {

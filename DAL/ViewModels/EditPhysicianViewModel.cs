@@ -31,6 +31,7 @@ namespace DAL.ViewModels
         public string? BusinessName {  get; set; }
         public string? BusinessWebsite {  get; set; }
         public string? AdminNotes {  get; set; }
+        public int? Regionid {  get; set; }
         public IFormFile SelectPhoto {  get; set; }
         public IFormFile SelectSignature {  get; set; }
         public IFormFile IndependentContractAgreement {  get; set; }
@@ -38,5 +39,6 @@ namespace DAL.ViewModels
         public IFormFile HIPAACompliance { get; set; }
         public IFormFile NonDisclosureAgreement { get; set; }
         public IFormFile LicenseDocument { get; set; }
+
     }
 }

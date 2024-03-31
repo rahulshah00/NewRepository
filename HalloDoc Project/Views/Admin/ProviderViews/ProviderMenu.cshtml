@@ -2,7 +2,6 @@
 @{
     Layout = "_AdminDashboardLayout";
 }
-
 <div class="row">
     <div class="d-flex justify-content-center">
         <div class="col-10 mt-4">
@@ -92,7 +91,7 @@
                                 </td>
                                 <td>
                                     <button class="btn btn-outline-info" id="ProviderContactButton" onclick="OpenContactModal(this)" data-physicianid="@Model.providers[i].PhysicianId">Contact</button>
-                                    <a class="btn btn-outline-info" asp-action="EditPhysicianProfile" asp-controller="Admin" >Edit</a>
+                                    <a class="btn btn-outline-info" asp-action="EditPhysicianProfile" asp-route-physicianid="@Model.providers[i].PhysicianId" asp-controller="Admin" >Edit</a>
                                 </td>
                             </tr>
                         }

@@ -11,5 +11,6 @@ namespace DAL.ViewModels
     {
         public List<Region> Region {  get; set; }
         public List<Providers> providers { get; set; }
+        
     }
 }

@@ -3,14 +3,8 @@ using DAL.DataContext;
 using DAL.DataModels;
 using DAL.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net.Mail;
-using System.Net;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 using BAL.Repository;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace HalloDoc_Project.Controllers
 {
@@ -25,7 +19,8 @@ namespace HalloDoc_Project.Controllers
         private readonly IEmailService _emailService;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IAgreement _agreement;
-        public GuestController(ApplicationDbContext context, IWebHostEnvironment environment, IConfiguration config, IRequestRepo request, IJwtToken token, IResetPasswordService resetPasswordService, IEmailService emailService, IPasswordHasher passwordHasher, IAgreement agreement)
+        private readonly INotyfService _notyf;
+        public GuestController(ApplicationDbContext context, IWebHostEnvironment environment, IConfiguration config, IRequestRepo request, IJwtToken token, IResetPasswordService resetPasswordService, IEmailService emailService, IPasswordHasher passwordHasher, IAgreement agreement, INotyfService notyf)
         {
             _context = context;
             _environment = environment;
@@ -36,6 +31,7 @@ namespace HalloDoc_Project.Controllers
             _emailService = emailService;
             _passwordHasher = passwordHasher;
             _agreement = agreement;
+            _notyf = notyf;
         }
         //Only ResetPassword is not taken into the three tier architecture otherwise everything from GuestController is in three tier architecture.
         public IActionResult Agree(int Requestid)
@@ -135,6 +131,7 @@ namespace HalloDoc_Project.Controllers
                 return RedirectToAction("Friend_Family", "Guest");
 
             }
+            
             return View(fmfr);
         }
         [HttpGet]
@@ -178,7 +175,7 @@ namespace HalloDoc_Project.Controllers
                     var token = _jwtToken.generateJwtToken(v.Email, "Patient");
                     Response.Cookies.Append("jwt", token);
 
-                    //TempData["success"] = "Logged In Successfully";
+                    _notyf.Success("Logged In Successfully");
                     return RedirectToAction("PatientDashboard", "Home");
                 }
                 else if(v.Role == "Admin")
@@ -187,9 +184,14 @@ namespace HalloDoc_Project.Controllers
                     var token = _jwtToken.generateJwtToken(v.Email, "Admin");
                     Response.Cookies.Append("jwt", token);
 
-                    //TempData["success"] = "Logged In Successfully";
+
+                    _notyf.Success("Logged In Successfully");
                     return RedirectToAction("AdminDashboard", "Admin");
-                }                
+                }
+            }
+            else
+            {
+                _notyf.Error("Invalid Credentials");
             }
             return View();
         }
