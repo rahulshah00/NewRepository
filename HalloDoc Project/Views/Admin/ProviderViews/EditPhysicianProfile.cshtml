@@ -207,21 +207,21 @@
                     Provider Profile
                 </h5>
                 <div class="row">
-                    <form method="post" id="ProviderProfileForm">
-                        <input hidden />
+                    <form method="post" id="ProviderProfileForm" asp-action="SubmitProviderProfile" asp-controller="Admin">
+                        <input hidden asp-for="@Model.PhysicianId"/>
                         <div class="row">
                             <div class="col-12 col-sm-6 form-floating temp mt-4">
-                                <input type="text" disabled id="BusinessName" class="ProfileInputs form-control border" placeholder="Business Name">
+                                <input asp-for="@Model.BusinessName" type="text" disabled id="BusinessName" class="ProfileInputs form-control border" placeholder="Business Name">
                                 <label for="BusinessName" class="input_labels ms-2">Business Name</label>
                             </div>
                             <div class="col-12 col-sm-6 form-floating temp mt-4">
-                                <input type="text" disabled id="BusinessWebsite" class="ProfileInputs form-control border" placeholder="Business Website">
+                                <input asp-for="@Model.BusinessWebsite" type="text" disabled id="BusinessWebsite" class="ProfileInputs form-control border" placeholder="Business Website">
                                 <label for="BusinessWebsite" class="input_labels ms-2">Business Website</label>
                             </div>
                         </div>
                         <div class="row align-items-center d-flex">
                             <div class="col-lg-6 col-12 ">
-                                <input disabled class="ProfileInputs col-12 col-sm-6 form-control" type="file" id="file_input_id" multiple style="opacity:0;height:0;">
+                                <input disabled asp-for="@Model.SelectPhoto" class="ProfileInputs col-12 col-sm-6 form-control" type="file" id="photo_input_id" accept=".pdf" style="opacity:0;height:0;">
                                 <div class="input-group">
                                     <input disabled type="text" id="text_input_id" class="ProfileInputs py-2 col-12 form-control" placeholder="Select Photo"
                                            style="caret-color: transparent" autocomplete="off" />
@@ -231,7 +231,7 @@
                                 </div>
                             </div>
                             <div class="col-lg-5 col-10">
-                                <input disabled class="ProfileInputs col-12 col-sm-4 form-control" type="file" id="file_input_id" multiple style="opacity:0;height:0;">
+                                <input disabled asp-for="@Model.SelectSignature" class="ProfileInputs col-12 col-sm-4 form-control" type="file" id="sign_input_id" accept=".pdf" multiple style="opacity:0;height:0;">
                                 <div class="input-group d-flex">
                                     <input disabled type="text" id="text_input_id" class="ProfileInputs py-2 col-12 form-control" placeholder="Select File"
                                            style="caret-color: transparent" autocomplete="off" />
@@ -241,10 +241,15 @@
                                 </div>
                             </div>
                             <div class="col-lg-1 col-2 ps-0">
-                                <button class="ProfileInputs btn btn-info p-2 mt-3 text-light ms-0" onclick="ShowCanvas()">Create</button>
+                                <button class="ProfileInputs btn btn-info p-2 mt-3 text-light ms-0" >Create</button>
                             </div>
-                            <div id="SignatureCanvas" class="d-flex justify-content-center mt-3">
-                                <canvas id="SignatureArea" class="d-none" width="500" height="200" style="border: 1px solid #ddd;"></canvas>
+                            <div id="signature-div" class="d-flex justify-content-center mt-3">
+                                <canvas asp-for="@Model.SelectSignature" id="signature-pad" width="500" height="200" style="border: 1px solid #ddd;"></canvas>
+                                
+                            </div>
+                            <div class="text-center mt-3">
+                                <button type="button" id="save-signature" class="btn btn-success">Save</button>
+                                <button type="button" class="btn btn-danger" id="clear-signature">Clear</button>
                             </div>
                         </div>
                         <div class="row">
@@ -269,7 +274,8 @@
                     On-boarding
                 </h5>
                 <div class="mb-3">
-                    <form method="post" id="OnboardingForm">
+                    <form method="post" id="OnboardingForm" asp-action="UploadOnboardingDocuments" asp-controller="Admin">
+                        <input hidden asp-for="@Model.PhysicianId" />
                         <div class="row align-items-center d-flex">
                             <div class="col-1">
                                 <input class="OnboardingCheckbox form-check-input border border-secondary" type="checkbox" style="height:20px; width:20px;">
@@ -346,10 +352,84 @@
                             <button type="button" id="OnboardingSaveChanges" class="btn text-white btn-info">Save Changes</button>
                             <button type="button" id="OnboardingDeleteAccount" class="btn btn-danger ">Delete Account</button>
                         </div>
+                        @* <div class="row align-items-center d-flex">
+                            <div class="col-1">
+                                <input asp-for="@Model.IndependentContractAgreement" class="OnboardingCheckbox form-check-input border border-secondary" type="file" style="height:20px; width:20px;">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-check-label" for="flexCheckDefault" style="font-size:18px">Independent Contract Agreement</label>
+                            </div>
+                            <div class="col-6 form-floating temp mt-3">
+                                <div>
+                                    <button class="btn btn-primary text-light OnboardingUploadButton d-none" disabled> Upload </button>
+                                    <button class="btn btn-info text-light OnboardingViewButton "> View </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row align-items-center d-flex">
+                            <div class="col-1">
+                                <input asp-for="@Model.BackgroundCheck" class="OnboardingCheckbox form-check-input border border-secondary" type="file" style="height:20px; width:20px;">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-check-label" for="flexCheckDefault" style="font-size:18px">Background Check</label>
+                            </div>
+                            <div class="col-6 form-floating temp mt-3">
+                                <div>
+                                    <button class="btn btn-primary text-light OnboardingUploadButton d-none" disabled> Upload </button>
+                                    <button class="btn btn-info text-light OnboardingViewButton "> View </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row align-items-center d-flex">
+                            <div class="col-1">
+                                <input asp-for="@Model.HIPAACompliance" class="OnboardingCheckbox form-check-input border border-secondary" type="file" style="height:20px; width:20px;">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-check-label" for="flexCheckDefault" style="font-size:18px">HIPAA Compliance</label>
+                            </div>
+                            <div class="col-6 form-floating temp mt-3">
+                                <div>
+                                    <button class="btn btn-primary text-light OnboardingUploadButton d-none" disabled> Upload </button>
+                                    <button class="btn btn-info text-light OnboardingViewButton "> View </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row align-items-center d-flex">
+                            <div class="col-1">
+                                <input asp-for="@Model.NonDisclosureAgreement" class="OnboardingCheckbox form-check-input border border-secondary" type="file" style="height:20px; width:20px;">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-check-label" for="flexCheckDefault" style="font-size:18px">Non-disclosure Agreement</label>
+                            </div>
+                            <div class="col form-floating temp mt-3">
+                                <div>
+                                    <button class="btn btn-primary text-light OnboardingUploadButton d-none" disabled> Upload </button>
+                                    <button class="btn btn-info text-light OnboardingViewButton "> View </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row align-items-center d-flex">
+                            <div class="col-1">
+                                <input asp-for="@Model.LicenseDocument" class="OnboardingCheckbox form-check-input border border-secondary" type="file" style="height:20px; width:20px;">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-check-label" for="flexCheckDefault" style="font-size:18px">License Document</label>
+                            </div>
+                            <div class="col-6 form-floating temp mt-3">
+                                <div>
+                                    <button class="btn btn-primary text-light OnboardingUploadButton d-none" disabled> Upload </button>
+                                    <button class="btn btn-info text-light OnboardingViewButton "> View </button>
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="text-end">
+                            <button type="button" id="OnboardingSaveChanges" class="btn text-white btn-info">Save Changes</button>
+                            <button type="button" id="OnboardingDeleteAccount" class="btn btn-danger ">Delete Account</button>
+                        </div> *@
                     </form>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
@@ -368,8 +448,6 @@
         utilsScript:
             "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
 
-                                                                                 < script src = "https://code.jquery.com/jquery-3.6.1.min.js"
-                                                                                 integrity = "sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin = "anonymous" >
 </script>
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 <script>
@@ -531,6 +609,7 @@
     }
 
     //Below script is to only enable the upload and view button upon click of checkbox
+
     // document.addEventListener("DOMContentLoaded", function () {
     //     const checkboxes = document.querySelectorAll(".OnboardingCheckbox");
     //     checkboxes.forEach(function (checkbox) {
@@ -544,6 +623,53 @@
     //     });
     // });
 
-
-
 </script>  
+<script>
+
+    function dataURLtoFile(dataurl, filename) {
+        var arr = dataurl.split(','),
+            mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[arr.length - 1]),
+            n = bstr.length,
+            u8arr = new Uint8Array(n);
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new File([u8arr], filename, { type: mime });
+    }
+
+    jQuery(document).ready(function ($) {
+
+        var canvas = document.getElementById("signature-pad");
+        var signaturePad = new SignaturePad(canvas);
+
+        $('#clear-signature').on('click', function () {
+            signaturePad.clear();
+        });
+
+        $('#save-signature').on('click', function () {
+            const signatureImage = signaturePad.toDataURL();
+            const fileName = "Digital_Signature.png";
+
+            $('#text_input_id').val(fileName);
+
+            let fileInputElement = document.getElementById('sign_input_id');
+
+            let container = new DataTransfer();
+            let data = new Blob();
+            let file = dataURLtoFile(signatureImage, fileName);
+            container.items.add(file);
+            fileInputElement.files = container.files;
+
+            $('#signature-div').css("display", "none");
+
+        });
+
+        $('#create-signature-btn').click(function () {
+            $('#signature-div').css("display", "flex");
+        });
+
+    });
+
+
+</script>

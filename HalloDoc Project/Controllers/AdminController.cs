@@ -6,6 +6,7 @@ using System.Text;
 using BAL.Interfaces;
 using ClosedXML.Excel;
 using Rotativa.AspNetCore;
+using System.Text.Json.Nodes;
 
 namespace HalloDoc_Project.Controllers
 {
@@ -77,6 +78,57 @@ namespace HalloDoc_Project.Controllers
             Patient = 2,
             Physician = 3
         }
+
+
+        public IActionResult ProviderLocation()
+        {
+            IEnumerable<PhyLocationRow> list = (from pl in _context.Physicianlocations
+                                                select new PhyLocationRow
+                                                {
+                                                    PhysicianName = pl.Physicianname,
+                                                    Latitude = pl.Latitude ?? 0,
+                                                    Longitude = pl.Longtitude ?? 0,
+                                                });
+
+            ProviderLocationViewModel model = new ProviderLocationViewModel()
+            {
+                locationList = list,
+            };
+            return View("ProviderLocation", model);
+        }
+
+        public async Task<string> GetLatitudeLongitude(EditPhysicianViewModel model)
+        {
+            string state = _context.Regions.FirstOrDefault(x => x.Regionid == model.Regionid).Name;
+            using (var client = new HttpClient())
+            {
+                string apiKey = "660a8cde1f3e9880195741utd6e112a";
+                string baseUrl = $"https://geocode.maps.co/search?street={model.Address1 + model.Address2}&city={model.City}&state={state}&postalcode={model.ZipCode}&country=India&api_key=" + apiKey;
+                //HTTP GET
+
+                var responseTask = client.GetAsync(baseUrl);
+                responseTask.Wait();
+
+                var result = responseTask.Result;
+                if (result.IsSuccessStatusCode)
+                {
+                    var content = await result.Content.ReadAsStringAsync();
+
+                    var json = JsonArray.Parse(content);
+
+                    string? latitude = json?[0]?["lat"]?.ToString();
+                    string? longitude = json?[0]?["lon"]?.ToString();
+                }
+                else
+                {
+                    //log response status here
+                    ModelState.AddModelError(string.Empty, "Server error. Please contact administrator.");
+                }
+            }
+            return "";
+        }
+
+
         public IActionResult Access()
         {
             return View();
@@ -90,6 +142,10 @@ namespace HalloDoc_Project.Controllers
                 return View(vc);
             }
             return View();
+        }
+        public IActionResult UserAccess()
+        {
+            return View("AccessViews/UserAccess");
         }
         public ActionResult AssignCase()
         {
@@ -105,11 +161,11 @@ namespace HalloDoc_Project.Controllers
             RoleModel.AccessMenu = _context.Menus.ToList();
             return View("AccessViews/CreateRole");
         }
-        
+
         public IActionResult EditPhysicianProfile(EditPhysicianViewModel EditPhysician, int PhysicianId)
         {
-            var Physician = _context.Physicians.FirstOrDefault(x=>x.Physicianid==PhysicianId);
-            var PhysicianAspData = _context.Aspnetusers.FirstOrDefault(x=>x.Id==Physician.Aspnetuserid);
+            var Physician = _context.Physicians.FirstOrDefault(x => x.Physicianid == PhysicianId);
+            var PhysicianAspData = _context.Aspnetusers.FirstOrDefault(x => x.Id == Physician.Aspnetuserid);
             if (Physician != null)
             {
                 EditPhysician.PhysicianId = PhysicianId;
@@ -123,27 +179,35 @@ namespace HalloDoc_Project.Controllers
                 EditPhysician.NPINumber = Physician.Npinumber;
                 EditPhysician.SyncEmail = Physician.Syncemailaddress;
                 EditPhysician.Address1 = Physician.Address1;
-                EditPhysician.Address2= Physician.Address2;
+                EditPhysician.Address2 = Physician.Address2;
                 EditPhysician.City = Physician.City;
                 EditPhysician.States = _context.Regions.ToList();
                 EditPhysician.ZipCode = Physician.Zip;
                 EditPhysician.BillingPhoneNo = Physician.Altphone;
-                EditPhysician.BusinessName=Physician.Businessname;
-                EditPhysician.BusinessWebsite=Physician.Businesswebsite;
+                EditPhysician.BusinessName = Physician.Businessname;
+                EditPhysician.BusinessWebsite = Physician.Businesswebsite;
                 EditPhysician.PhysicianUsername = PhysicianAspData.Username;
             }
-            return View("ProviderViews/EditPhysicianProfile",EditPhysician);
+            return View("ProviderViews/EditPhysicianProfile", EditPhysician);
         }
         [HttpPost]
         public IActionResult SubmitPhysicianAccountInfo(EditPhysicianViewModel PhysicianAccountInfo)
         {
+            var Physician = _context.Physicians.FirstOrDefault(x => x.Physicianid == PhysicianAccountInfo.PhysicianId);
+            if (Physician != null)
+            {
+                Physician.Status = PhysicianAccountInfo.Status;
+                Physician.Roleid = PhysicianAccountInfo.Role;
+            }
+            _context.Physicians.Update(Physician);
+            _context.SaveChanges();
             return EditPhysicianProfile(PhysicianAccountInfo, PhysicianAccountInfo.PhysicianId);
         }
         [HttpPost]
         public IActionResult SubmitPhysicianInfo(EditPhysicianViewModel PhysicianInfoModel)
         {
             //ADDING REGION ID IS REMAINING
-            var Physician = _context.Physicians.FirstOrDefault(x=>x.Physicianid==PhysicianInfoModel.PhysicianId);
+            var Physician = _context.Physicians.FirstOrDefault(x => x.Physicianid == PhysicianInfoModel.PhysicianId);
             if (Physician != null)
             {
                 Physician.Firstname = PhysicianInfoModel.FirstName;
@@ -156,17 +220,18 @@ namespace HalloDoc_Project.Controllers
             }
             _context.Physicians.Update(Physician);
             _context.SaveChanges();
-            return EditPhysicianProfile(PhysicianInfoModel,PhysicianInfoModel.PhysicianId);
+            return EditPhysicianProfile(PhysicianInfoModel, PhysicianInfoModel.PhysicianId);
         }
         [HttpPost]
         public IActionResult SubmitPhysicianMailingBillingDetails(EditPhysicianViewModel MailingBillingModel)
         {
-            var Physician = _context.Physicians.FirstOrDefault(x=>x.Physicianid==MailingBillingModel.PhysicianId);
+            GetLatitudeLongitude(MailingBillingModel);
+             var Physician = _context.Physicians.FirstOrDefault(x => x.Physicianid == MailingBillingModel.PhysicianId);
             if (Physician != null)
             {
                 Physician.Address1 = MailingBillingModel.Address1;
-                Physician.Address2=MailingBillingModel.Address2;
-                Physician.City=MailingBillingModel.City;
+                Physician.Address2 = MailingBillingModel.Address2;
+                Physician.City = MailingBillingModel.City;
                 Physician.Regionid = MailingBillingModel.Regionid;
                 Physician.Zip = MailingBillingModel.ZipCode;
                 Physician.Altphone = MailingBillingModel.BillingPhoneNo;
@@ -176,10 +241,27 @@ namespace HalloDoc_Project.Controllers
             return EditPhysicianProfile(MailingBillingModel, MailingBillingModel.PhysicianId);
         }
         [HttpPost]
-        public IActionResult EditPhysicianProfile(EditPhysicianViewModel EditPhysician)
+        public IActionResult SubmitProviderProfile(EditPhysicianViewModel ProviderProfile)
         {
-            return Ok();
+            var Physician = _context.Physicians.FirstOrDefault(x => x.Physicianid == ProviderProfile.PhysicianId);
+            if (Physician != null)
+            {
+                Physician.Businessname = ProviderProfile.BusinessName;
+                Physician.Businesswebsite = ProviderProfile.BusinessWebsite;
+            }
+            _context.Physicians.Update(Physician);
+            _context.SaveChanges();
+            return EditPhysicianProfile(ProviderProfile, ProviderProfile.PhysicianId);
         }
+        //HttpPost]
+        //public IActionResult UploadOnboardingDocuments(EditPhysicianViewModel ProviderOnboarding)
+        //{
+        //    var PhysicianDocuments = _context.Physicians.FirstOrDefault(x => x.Physicianid == ProviderOnboarding.PhysicianId);
+        //    if(PhysicianDocuments!= null)
+        //    {
+
+        //    }
+        //}[
         public ActionResult BlockCase(String blockreason)
         {
             return Ok();
@@ -197,7 +279,7 @@ namespace HalloDoc_Project.Controllers
                                      Name = p.Firstname + " " + p.Lastname,
                                      ProviderStatus = p.Status ?? 0,
                                      Email = p.Email,
-                                     Notification = notiitem.Isnotificationstopped ? true: false,
+                                     Notification = notiitem.Isnotificationstopped ? true : false,
                                      Role = p.Roleid ?? 0
                                  }).ToList();
             ProviderMenuData.providers = DoctorDetails;
@@ -205,12 +287,12 @@ namespace HalloDoc_Project.Controllers
         }
         public void UpdateNotifications(int PhysicianId)
         {
-            var PhysicianNotification=_context.Physiciannotifications.FirstOrDefault(x=>x.Physicianid== PhysicianId);
+            var PhysicianNotification = _context.Physiciannotifications.FirstOrDefault(x => x.Physicianid == PhysicianId);
             if (PhysicianNotification.Isnotificationstopped)
             {
                 PhysicianNotification.Isnotificationstopped = false;
             }
-            else if(!PhysicianNotification.Isnotificationstopped)
+            else if (!PhysicianNotification.Isnotificationstopped)
             {
                 PhysicianNotification.Isnotificationstopped = true;
             }
@@ -218,18 +300,18 @@ namespace HalloDoc_Project.Controllers
             _context.SaveChanges();
         }
         [HttpPost]
-        public IActionResult SendEmailToProvider(String RadioButtonValue,String EmailMessage,String PhysicianId)
+        public IActionResult SendEmailToProvider(String RadioButtonValue, String EmailMessage, String PhysicianId)
         {
-            var physician = _context.Physicians.FirstOrDefault(x=>x.Physicianid== int.Parse(PhysicianId));
+            var physician = _context.Physicians.FirstOrDefault(x => x.Physicianid == int.Parse(PhysicianId));
             if (RadioButtonValue == "1")
             {
 
             }
-            if (RadioButtonValue == "2" && physician.Email!=null)
+            if (RadioButtonValue == "2" && physician.Email != null)
             {
-                _emailService.SendEmailMessage(EmailMessage,physician.Email);
+                _emailService.SendEmailMessage(EmailMessage, physician.Email);
             }
-            else if(RadioButtonValue == "3")
+            else if (RadioButtonValue == "3")
             {
 
             }
@@ -275,10 +357,6 @@ namespace HalloDoc_Project.Controllers
             return View();
         }
         public IActionResult Profile()
-        {
-            return View();
-        }
-        public IActionResult ProviderLocation()
         {
             return View();
         }
