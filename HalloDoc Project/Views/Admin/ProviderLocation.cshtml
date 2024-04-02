@@ -36,10 +36,9 @@
     {
         @:console.log('hi');
         @:var cmarker = new tt.Marker().setLngLat([@row.Longitude, @row.Latitude]).addTo(map);
-        @:var cpopup = new tt.Popup({ offset: popupOffsets }).setHTML("@row.PhysicianName");
+        @:var cpopup = new tt.Popup({ offset: popupOffsets }).setHTML("<b>@row.PhysicianName</b>");
         @:cmarker.setPopup(cpopup).togglePopup();
     }
-
 </script>
 @* 
 <script>

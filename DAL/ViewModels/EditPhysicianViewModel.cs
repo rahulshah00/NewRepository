@@ -13,7 +13,7 @@ namespace DAL.ViewModels
         public string? PhysicianUsername {  get; set; }
         public string? PhysicianPassword { get; set; }
         public short? Status {  get; set; }
-        public int? Role {  get; set; }
+        public List<Role> Role {  get; set; }
         public string? FirstName {  get; set; }
         public string? LastName { get; set; }
         public string? Email {  get; set; }

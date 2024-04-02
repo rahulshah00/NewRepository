@@ -22,7 +22,8 @@ namespace HalloDoc_Project.Controllers
         private readonly IFileOperations _fileOperations;
         private readonly IEncounterForm _encounterForm;
         private readonly IAdmin _admin;
-        public AdminController(ApplicationDbContext context, IWebHostEnvironment environment, IConfiguration config, IEmailService emailService, IAdminTables adminTables, IAdminActions adminActions, IFileOperations fileOperations, IEncounterForm encounterForm, IAdmin admin)
+        private readonly IPasswordHasher _passwordHasher;
+        public AdminController(ApplicationDbContext context, IWebHostEnvironment environment, IConfiguration config, IEmailService emailService, IAdminTables adminTables, IAdminActions adminActions, IFileOperations fileOperations, IEncounterForm encounterForm, IAdmin admin,IPasswordHasher passwordHasher)
         {
             _context = context;
             _environment = environment;
@@ -33,6 +34,7 @@ namespace HalloDoc_Project.Controllers
             _fileOperations = fileOperations;
             _encounterForm = encounterForm;
             _admin = admin;
+            _passwordHasher = passwordHasher;
         }
         public IActionResult Index()
         {
@@ -96,13 +98,21 @@ namespace HalloDoc_Project.Controllers
             };
             return View("ProviderLocation", model);
         }
+        public IActionResult Calendar()
+        {
+            return View("ProviderViews/Calendar");
+        }
 
+        public IActionResult ProviderScheduling()
+        {
+            return View("ProviderViews/ProviderScheduling");
+        }
         public async Task<string> GetLatitudeLongitude(EditPhysicianViewModel model)
         {
             string state = _context.Regions.FirstOrDefault(x => x.Regionid == model.Regionid).Name;
             using (var client = new HttpClient())
             {
-                string apiKey = "660a8cde1f3e9880195741utd6e112a";
+                string apiKey = _config["Maps:GeocodingAPIkey"];
                 string baseUrl = $"https://geocode.maps.co/search?street={model.Address1 + model.Address2}&city={model.City}&state={state}&postalcode={model.ZipCode}&country=India&api_key=" + apiKey;
                 //HTTP GET
 
@@ -162,6 +172,10 @@ namespace HalloDoc_Project.Controllers
             return View("AccessViews/CreateRole");
         }
 
+        public IActionResult CreatePhysician()
+        {
+            return View("ProviderViews/CreatePhysician");
+        }
         public IActionResult EditPhysicianProfile(EditPhysicianViewModel EditPhysician, int PhysicianId)
         {
             var Physician = _context.Physicians.FirstOrDefault(x => x.Physicianid == PhysicianId);
@@ -171,7 +185,7 @@ namespace HalloDoc_Project.Controllers
                 EditPhysician.PhysicianId = PhysicianId;
                 EditPhysician.PhoneNo = Physician.Mobile;
                 EditPhysician.Status = Physician.Status;
-                EditPhysician.Role = Physician.Roleid;
+                //EditPhysician.Role = (int)Physician.Roleid;
                 EditPhysician.Email = Physician.Email;
                 EditPhysician.FirstName = Physician.Firstname;
                 EditPhysician.LastName = Physician.Lastname;
@@ -197,7 +211,7 @@ namespace HalloDoc_Project.Controllers
             if (Physician != null)
             {
                 Physician.Status = PhysicianAccountInfo.Status;
-                Physician.Roleid = PhysicianAccountInfo.Role;
+                //Physician.Roleid = PhysicianAccountInfo.Role;
             }
             _context.Physicians.Update(Physician);
             _context.SaveChanges();
@@ -226,7 +240,7 @@ namespace HalloDoc_Project.Controllers
         public IActionResult SubmitPhysicianMailingBillingDetails(EditPhysicianViewModel MailingBillingModel)
         {
             GetLatitudeLongitude(MailingBillingModel);
-             var Physician = _context.Physicians.FirstOrDefault(x => x.Physicianid == MailingBillingModel.PhysicianId);
+            var Physician = _context.Physicians.FirstOrDefault(x => x.Physicianid == MailingBillingModel.PhysicianId);
             if (Physician != null)
             {
                 Physician.Address1 = MailingBillingModel.Address1;
@@ -324,6 +338,47 @@ namespace HalloDoc_Project.Controllers
         public IActionResult CreatePhysicianAccount()
         {
             return View("ProviderViews/CreatePhysicianAccount");
+        }
+        [HttpPost]
+        public IActionResult CreatePhysician(EditPhysicianViewModel Model)
+        {
+            string id = Guid.NewGuid().ToString();
+            Aspnetuser user = new Aspnetuser();
+            user.Id = id;
+            user.Username = Model.PhysicianUsername;
+            user.Passwordhash = _passwordHasher.GenerateSHA256(Model.PhysicianPassword);
+            user.Email = Model.Email;
+            user.Phonenumber = Model.PhoneNo;
+            user.Createddate= DateTime.Now;
+            user.Role = "Physician";
+
+            Physician Doctor=new Physician();
+            Doctor.Aspnetuserid = id;
+            Doctor.Firstname = Model.FirstName;
+            Doctor.Lastname = Model.LastName;
+            Doctor.Email = Model.Email;
+            Doctor.Mobile = Model.PhoneNo;
+            Doctor.Medicallicense = Model.MedicalLicense;
+            Doctor.Adminnotes = Model.AdminNotes;
+            Doctor.Address1=Model.Address1;
+            Doctor.Address2=Model.Address2;
+            Doctor.City = Model.City;
+            Doctor.Zip = Model.ZipCode;
+            Doctor.Altphone = Model.PhoneNo;
+            Doctor.Npinumber = Model.NPINumber;
+            Doctor.Medicallicense=Model.MedicalLicense;
+            Doctor.Businessname = Model.BusinessName;
+            Doctor.Businesswebsite = Model.BusinessWebsite;
+            Doctor.Syncemailaddress = Model.SyncEmail;
+            Doctor.Regionid=Model.Regionid;
+            Doctor.Roleid = 3;
+            Doctor.Createdby = id;
+
+            _context.Aspnetusers.Add(user);
+            _context.Physicians.Add(Doctor);
+            _context.SaveChanges();
+
+            return View("ProviderViews/ProviderMenu");
         }
 
         public IActionResult ViewNotes(int requestid)
