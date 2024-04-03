@@ -7,6 +7,7 @@ using BAL.Interfaces;
 using ClosedXML.Excel;
 using Rotativa.AspNetCore;
 using System.Text.Json.Nodes;
+using System.Numerics;
 
 namespace HalloDoc_Project.Controllers
 {
@@ -23,7 +24,7 @@ namespace HalloDoc_Project.Controllers
         private readonly IEncounterForm _encounterForm;
         private readonly IAdmin _admin;
         private readonly IPasswordHasher _passwordHasher;
-        public AdminController(ApplicationDbContext context, IWebHostEnvironment environment, IConfiguration config, IEmailService emailService, IAdminTables adminTables, IAdminActions adminActions, IFileOperations fileOperations, IEncounterForm encounterForm, IAdmin admin,IPasswordHasher passwordHasher)
+        public AdminController(ApplicationDbContext context, IWebHostEnvironment environment, IConfiguration config, IEmailService emailService, IAdminTables adminTables, IAdminActions adminActions, IFileOperations fileOperations, IEncounterForm encounterForm, IAdmin admin, IPasswordHasher passwordHasher)
         {
             _context = context;
             _environment = environment;
@@ -94,10 +95,11 @@ namespace HalloDoc_Project.Controllers
 
             ProviderLocationViewModel model = new ProviderLocationViewModel()
             {
-                locationList = list,
+                locationList = list.ToList(),
             };
             return View("ProviderLocation", model);
         }
+        [HttpPost]
         public IActionResult Calendar()
         {
             return View("ProviderViews/Calendar");
@@ -174,12 +176,16 @@ namespace HalloDoc_Project.Controllers
 
         public IActionResult CreatePhysician()
         {
-            return View("ProviderViews/CreatePhysician");
+            EditPhysicianViewModel model = new EditPhysicianViewModel();
+            model.Role = _context.Roles.ToList();
+            model.States = _context.Regions.ToList();
+            return View("ProviderViews/CreatePhysician", model);
         }
-        public IActionResult EditPhysicianProfile(EditPhysicianViewModel EditPhysician, int PhysicianId)
+        public IActionResult EditPhysicianProfile(int PhysicianId)
         {
             var Physician = _context.Physicians.FirstOrDefault(x => x.Physicianid == PhysicianId);
             var PhysicianAspData = _context.Aspnetusers.FirstOrDefault(x => x.Id == Physician.Aspnetuserid);
+            EditPhysicianViewModel EditPhysician = new EditPhysicianViewModel();
             if (Physician != null)
             {
                 EditPhysician.PhysicianId = PhysicianId;
@@ -215,7 +221,7 @@ namespace HalloDoc_Project.Controllers
             }
             _context.Physicians.Update(Physician);
             _context.SaveChanges();
-            return EditPhysicianProfile(PhysicianAccountInfo, PhysicianAccountInfo.PhysicianId);
+            return EditPhysicianProfile(PhysicianAccountInfo.PhysicianId);
         }
         [HttpPost]
         public IActionResult SubmitPhysicianInfo(EditPhysicianViewModel PhysicianInfoModel)
@@ -234,7 +240,7 @@ namespace HalloDoc_Project.Controllers
             }
             _context.Physicians.Update(Physician);
             _context.SaveChanges();
-            return EditPhysicianProfile(PhysicianInfoModel, PhysicianInfoModel.PhysicianId);
+            return EditPhysicianProfile(PhysicianInfoModel.PhysicianId);
         }
         [HttpPost]
         public IActionResult SubmitPhysicianMailingBillingDetails(EditPhysicianViewModel MailingBillingModel)
@@ -252,7 +258,7 @@ namespace HalloDoc_Project.Controllers
             }
             _context.Physicians.Update(Physician);
             _context.SaveChanges();
-            return EditPhysicianProfile(MailingBillingModel, MailingBillingModel.PhysicianId);
+            return EditPhysicianProfile(MailingBillingModel.PhysicianId);
         }
         [HttpPost]
         public IActionResult SubmitProviderProfile(EditPhysicianViewModel ProviderProfile)
@@ -262,20 +268,79 @@ namespace HalloDoc_Project.Controllers
             {
                 Physician.Businessname = ProviderProfile.BusinessName;
                 Physician.Businesswebsite = ProviderProfile.BusinessWebsite;
+                if (ProviderProfile.SelectPhoto != null)
+                {
+                    var filename = "Photo";
+                    var filepath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "Content", "Providers", ProviderProfile.PhysicianId.ToString());
+                    InsertFileAfterRename(ProviderProfile.SelectPhoto, filepath, filename);
+                    Physician.Photo = Guid.NewGuid().ToString() + ProviderProfile.SelectPhoto.Name;
+                }
+                if (ProviderProfile.SelectSignature != null)
+                {
+                    var filename = "Signature";
+                    var filepath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "Content", "Providers", ProviderProfile.PhysicianId.ToString());
+                    InsertFileAfterRename(ProviderProfile.SelectSignature, filepath, filename);
+                    Physician.Signature = Guid.NewGuid().ToString() + ProviderProfile.SelectSignature.Name;
+                }
             }
             _context.Physicians.Update(Physician);
             _context.SaveChanges();
-            return EditPhysicianProfile(ProviderProfile, ProviderProfile.PhysicianId);
+            return EditPhysicianProfile(ProviderProfile.PhysicianId);
         }
-        //HttpPost]
-        //public IActionResult UploadOnboardingDocuments(EditPhysicianViewModel ProviderOnboarding)
-        //{
-        //    var PhysicianDocuments = _context.Physicians.FirstOrDefault(x => x.Physicianid == ProviderOnboarding.PhysicianId);
-        //    if(PhysicianDocuments!= null)
-        //    {
+        [HttpPost]
+        public IActionResult UploadOnboardingDocuments(EditPhysicianViewModel Model)
+        {
+            var PhysicianDocuments = _context.Physicians.FirstOrDefault(x => x.Physicianid == Model.PhysicianId);
+            if (PhysicianDocuments != null)
+            {
+                if (Model.SelectPhoto != null)
+                {
+                    var filename = "Photo";
+                    var filepath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "Content", "Providers", Model.PhysicianId.ToString());
+                    InsertFileAfterRename(Model.SelectPhoto, filepath, filename);
+                    PhysicianDocuments.Photo = Guid.NewGuid().ToString() + Model.SelectPhoto.Name;
+                }
+                if (Model.SelectSignature != null)
+                {
+                    var filename = "Signature";
+                    var filepath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "Content", "Providers", Model.PhysicianId.ToString());
+                    InsertFileAfterRename(Model.SelectSignature, filepath, filename);
+                    PhysicianDocuments.Signature = Guid.NewGuid().ToString() + Model.SelectSignature.Name;
+                }
+                if (Model.IndependentContractAgreement != null)
+                {
+                    var filename = "ICA";
+                    var filepath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "Content", "Providers", Model.PhysicianId.ToString());
+                    InsertFileAfterRename(Model.IndependentContractAgreement, filepath, filename);
+                    PhysicianDocuments.Isagreementdoc = true;
+                }
+                if (Model.BackgroundCheck != null)
+                {
+                    var filename = "BC";
+                    var filepath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "Content", "Providers", Model.PhysicianId.ToString());
+                    InsertFileAfterRename(Model.BackgroundCheck, filepath, filename);
+                    PhysicianDocuments.Isbackgrounddoc = true;
+                }
+                if (Model.HIPAACompliance != null)
+                {
+                    var filename = "HIPPA";
+                    var filepath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "Content", "Providers", Model.PhysicianId.ToString());
+                    InsertFileAfterRename(Model.HIPAACompliance, filepath, filename);
+                    PhysicianDocuments.Istrainingdoc = true;
+                }
+                if (Model.NonDisclosureAgreement != null)
+                {
+                    var filename = "NDA";
+                    var filepath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "Content", "Providers", Model.PhysicianId.ToString());
+                    InsertFileAfterRename(Model.NonDisclosureAgreement, filepath, filename);
+                    PhysicianDocuments.Isnondisclosuredoc = true;
+                }
+                _context.Physicians.Update(PhysicianDocuments);
+                _context.SaveChanges();
+            }
+            return EditPhysicianProfile(PhysicianDocuments.Physicianid);
+        }
 
-        //    }
-        //}[
         public ActionResult BlockCase(String blockreason)
         {
             return Ok();
@@ -349,10 +414,11 @@ namespace HalloDoc_Project.Controllers
             user.Passwordhash = _passwordHasher.GenerateSHA256(Model.PhysicianPassword);
             user.Email = Model.Email;
             user.Phonenumber = Model.PhoneNo;
-            user.Createddate= DateTime.Now;
+            user.Createddate = DateTime.Now;
             user.Role = "Physician";
 
-            Physician Doctor=new Physician();
+
+            Physician Doctor = new Physician();
             Doctor.Aspnetuserid = id;
             Doctor.Firstname = Model.FirstName;
             Doctor.Lastname = Model.LastName;
@@ -360,25 +426,113 @@ namespace HalloDoc_Project.Controllers
             Doctor.Mobile = Model.PhoneNo;
             Doctor.Medicallicense = Model.MedicalLicense;
             Doctor.Adminnotes = Model.AdminNotes;
-            Doctor.Address1=Model.Address1;
-            Doctor.Address2=Model.Address2;
+            Doctor.Address1 = Model.Address1;
+            Doctor.Address2 = Model.Address2;
             Doctor.City = Model.City;
             Doctor.Zip = Model.ZipCode;
             Doctor.Altphone = Model.PhoneNo;
             Doctor.Npinumber = Model.NPINumber;
-            Doctor.Medicallicense=Model.MedicalLicense;
+            Doctor.Medicallicense = Model.MedicalLicense;
             Doctor.Businessname = Model.BusinessName;
             Doctor.Businesswebsite = Model.BusinessWebsite;
             Doctor.Syncemailaddress = Model.SyncEmail;
-            Doctor.Regionid=Model.Regionid;
-            Doctor.Roleid = 3;
+            Doctor.Regionid = Model.Regionid;
+            Doctor.Roleid = Model.PhysicianRole;
             Doctor.Createdby = id;
+            Doctor.Regionid = Model.PhysicianState;
 
             _context.Aspnetusers.Add(user);
+
             _context.Physicians.Add(Doctor);
             _context.SaveChanges();
 
-            return View("ProviderViews/ProviderMenu");
+            Physiciannotification notifications = new Physiciannotification();
+            notifications.Physicianid = Doctor.Physicianid;
+            notifications.Isnotificationstopped = false;
+
+            _context.Physiciannotifications.Add(notifications);
+            _context.SaveChanges();
+
+            if (Model.SelectPhoto != null)
+            {
+                var filename = "Photo";
+                var filepath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "Content", "Providers", Doctor.Physicianid.ToString());
+                InsertFileAfterRename(Model.SelectPhoto, filepath, filename);
+                Doctor.Photo = Guid.NewGuid().ToString() + Model.SelectPhoto.Name;
+            }
+            if (Model.SelectSignature != null)
+            {
+                var filename = "Signature";
+                var filepath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "Content", "Providers", Doctor.Physicianid.ToString());
+                InsertFileAfterRename(Model.SelectSignature, filepath, filename);
+                Doctor.Signature = Guid.NewGuid().ToString() + Model.SelectSignature.Name;
+            }
+            if (Model.IndependentContractAgreement != null)
+            {
+                var filename = "ICA";
+                var filepath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "Content", "Providers", Doctor.Physicianid.ToString());
+                InsertFileAfterRename(Model.IndependentContractAgreement, filepath, filename);
+                Doctor.Isagreementdoc = true;
+            }
+            if (Model.BackgroundCheck != null)
+            {
+                var filename = "BC";
+                var filepath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "Content", "Providers", Doctor.Physicianid.ToString());
+                InsertFileAfterRename(Model.BackgroundCheck, filepath, filename);
+                Doctor.Isbackgrounddoc = true;
+            }
+            if (Model.HIPAACompliance != null)
+            {
+                var filename = "HIPPA";
+                var filepath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "Content", "Providers", Doctor.Physicianid.ToString());
+                InsertFileAfterRename(Model.HIPAACompliance, filepath, filename);
+                Doctor.Istrainingdoc = true;
+            }
+            if (Model.NonDisclosureAgreement != null)
+            {
+                var filename = "NDA";
+                var filepath = Path.Combine(Environment.CurrentDirectory, "wwwroot", "Content", "Providers", Doctor.Physicianid.ToString());
+                InsertFileAfterRename(Model.NonDisclosureAgreement, filepath, filename);
+                Doctor.Isnondisclosuredoc = true;
+            }
+
+            _context.Physicians.Update(Doctor);
+            _context.SaveChanges();
+
+            for (int i = 0; i < Model.SelectedRegions.Count; i++)
+            {
+                var physicinRegion = new Physicianregion
+                {
+                    Physicianid = Doctor.Physicianid,
+                    Regionid = Model.SelectedRegions[i]
+                };
+                _context.Physicianregions.Add(physicinRegion);
+            }
+            _context.SaveChanges();
+
+            return RedirectToAction("AdminDashboard");
+        }
+        public void InsertFileAfterRename(IFormFile file, string path, string updateName)
+        {
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            string[] oldfiles = Directory.GetFiles(path, updateName + ".*");
+            foreach (string f in oldfiles)
+            {
+                System.IO.File.Delete(f);
+            }
+
+            string extension = Path.GetExtension(file.FileName);
+
+            string fileName = updateName + extension;
+
+            string fullPath = Path.Combine(path, fileName);
+
+            using FileStream stream = new(fullPath, FileMode.Create);
+            file.CopyTo(stream);
         }
 
         public IActionResult ViewNotes(int requestid)

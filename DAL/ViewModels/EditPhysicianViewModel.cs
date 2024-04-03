@@ -40,5 +40,11 @@ namespace DAL.ViewModels
         public IFormFile NonDisclosureAgreement { get; set; }
         public IFormFile LicenseDocument { get; set; }
 
+        public List<int> SelectedRegions {  get; set; }
+
+        public int? PhysicianRole {  get; set; }
+        public int? PhysicianState {  get; set; }
+
+
     }
 }
