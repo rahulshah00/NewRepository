@@ -165,13 +165,106 @@ namespace HalloDoc_Project.Controllers
         }
         public IActionResult AccountAccess()
         {
-            return View("AccessViews/AccountAccess");
+            var roles = _context.Roles.ToList();
+            AccountAccessViewModel AccountAccess = new AccountAccessViewModel()
+            {
+                Roles = roles,
+            };
+            return View("AccessViews/AccountAccess", AccountAccess);
         }
-        public IActionResult CreateRole(CreateRoleViewModel RoleModel)
+        public IActionResult CreateRole()
         {
+            CreateRoleViewModel RoleModel = new CreateRoleViewModel();
             RoleModel.AccountType = _context.Aspnetroles.ToList();
-            RoleModel.AccessMenu = _context.Menus.ToList();
-            return View("AccessViews/CreateRole");
+            return View("AccessViews/CreateRole", RoleModel);
+        }
+
+        public List<Menu> MenuFilter(int AccountType)
+        {
+            List<Menu> menu = _context.Menus.Where(x => x.Accounttype == AccountType).ToList();
+            return menu;
+        }
+
+        public bool CreateNewRole(string Rolename, int AccountType, List<int> checkboxes)
+        {
+            var AdminEmail = HttpContext.Session.GetString("Email");
+            Admin admin = _context.Admins.FirstOrDefault(x => x.Email == AdminEmail);
+
+            Role roles = new Role()
+            {
+                Name = Rolename,
+                Accounttype = (short)AccountType,
+                Createdby = admin.Aspnetuserid,
+                Createddate = DateTime.Now,
+                Isdeleted = false,
+            };
+            _context.Roles.Add(roles);
+            _context.SaveChanges();
+
+            for (int i = 0; i < checkboxes.Count; i++)
+            {
+                Rolemenu rolemenu = new Rolemenu()
+                {
+                    Roleid = roles.Roleid,
+                    Menuid = checkboxes[i],
+                };
+                _context.Rolemenus.Add(rolemenu);
+            }
+            _context.SaveChanges();
+            return true;
+        }
+
+        public IActionResult EditRoleAccountAccess(int id)
+        {
+
+            EditAccessViewModel model = new EditAccessViewModel();
+
+            var role = _context.Roles.FirstOrDefault(x => x.Roleid == id);
+            List<Menu> menu = _context.Menus.Where(x => x.Accounttype == role.Accounttype).ToList();
+            List<int> rolmenu = _context.Rolemenus.Where(x => x.Roleid == id).Select(x => (int)x.Menuid).ToList();
+            var accountType = _context.Aspnetroles.ToList();
+
+            model.id = id;
+            model.role = role.Name;
+            model.type = (short)role.Accounttype;
+            model.accountTypes = accountType;
+            model.menu = menu;
+            model.rolemenu = rolmenu;
+
+            return View("AccessViews/EditAccess", model);
+        }
+
+        public bool SaveEditRole(int id, string role, List<int> newPages)
+        {
+            var AdminEmail = HttpContext.Session.GetString("Email");
+            Admin admin = _context.Admins.FirstOrDefault(x => x.Email == AdminEmail);
+
+            Role roles = _context.Roles.FirstOrDefault(u => u.Roleid == id);
+            List<Rolemenu> oldList = _context.Rolemenus.Where(x => x.Roleid == id).ToList();
+
+            roles.Name = role;
+            roles.Modifieddate = DateTime.Now;
+            roles.Modifiedby = admin.Aspnetuserid;
+
+            _context.Roles.Update(roles);
+
+            for (int i = 0; i < oldList.Count; i++)
+            {
+                _context.Rolemenus.Remove(oldList[i]);
+            }
+            for (int x = 0; x < newPages.Count; x++)
+            {
+                Rolemenu rolemenu = new Rolemenu()
+                {
+                    Roleid = id,
+                    Menuid = newPages[x]
+                };
+                _context.Rolemenus.Add(rolemenu);
+            }
+            _context.SaveChanges();
+
+
+            return true;
         }
 
         public IActionResult CreatePhysician()
@@ -1231,6 +1324,43 @@ namespace HalloDoc_Project.Controllers
             }
             return RedirectToAction("ViewUploads", new { requestid = uploads.RequestID });
         }
+        public IActionResult SelectRecordsPartialTable()
+        {
+            var PatientRecords = (from r in _context.Requests
+                                  join rc in _context.Requestclients on r.Requestid equals rc.Requestid
+                                  join rs in _context.Requeststatuses on r.Status equals rs.Statusid
+                                  //join rn in _context.Requestnotes on r.Requestid equals rn.Requestid
+                                  join rt in _context.Requesttypes on r.Requesttypeid equals rt.Requesttypeid
+                                  join phy in _context.Physicians on r.Physicianid equals phy.Physicianid into phyGroup
+                                  from phyItem in phyGroup.DefaultIfEmpty()
+                                  select new SearchRecordsTableViewModel
+                                  {
+                                      PatientName = rc.Firstname + " " + rc.Lastname,
+                                      Requestor = r.Firstname + " " + r.Lastname,
+                                      DateOfService = DateOnly.FromDateTime(DateTime.Now),
+                                      CloseCaseDate = DateOnly.FromDateTime(DateTime.Now),
+                                      Email = rc.Email,
+                                      PhoneNumber = rc.Phonenumber,
+                                      Address = rc.Address,
+                                      Zip = rc.Zipcode,
+                                      RequestStatus = rs.Name,
+                                      PhysicianNotes = /*rn.Physiciannotes*/"xxx",
+                                      AdminNotes = /*rn.Adminnotes*/"xxx",
+                                      PatientNotes = "PatientNotes",
+                                      PhysicianName = phyItem.Firstname + " " + phyItem.Lastname,
+                                      CancelledByPhysicianNotes="N/A"
+                                  }).ToList();
+            return PartialView("Records/SearchRecordsPartialTable",PatientRecords);
+        }
+        public IActionResult SearchRecords()
+        {
+            return View("Records/SearchRecords");
+        }
+        public IActionResult FilterPhysicianByRegion(int regionid)
+        {
+            var physicians = _context.Physicians.Where(x => x.Regionid == regionid).ToList();
+            return Json(physicians);
+        }
         public IActionResult CloseCase(int requestid)
         {
             CloseCaseViewModel model = _adminActions.CloseCaseGet(requestid);
@@ -1280,6 +1410,5 @@ namespace HalloDoc_Project.Controllers
             Response.Cookies.Delete("jwt");
             return RedirectToAction("login_page", "Guest");
         }
-
     }
 }

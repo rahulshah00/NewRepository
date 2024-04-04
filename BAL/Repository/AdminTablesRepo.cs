@@ -36,7 +36,6 @@ namespace BAL.Repository
                                      requestType = r.Requesttypeid,
                                      email = rc.Email
                                  }).ToList();
-
             AdminRequestsViewModel arvm = new AdminRequestsViewModel();
             AdminDashboardViewModel advm = new()
             {

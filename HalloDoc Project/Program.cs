@@ -9,10 +9,8 @@ using Microsoft.IdentityModel.Tokens;
 using Rotativa.AspNetCore;
 using System.Text;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>();
@@ -32,7 +30,7 @@ builder.Services.AddScoped<IAdmin,AdminRepo>();
 
 builder.Services.AddNotyf(config =>
 {
-    config.DurationInSeconds = 5; config.IsDismissable = false;
+    config.DurationInSeconds = 2; config.IsDismissable = false;
     config.HasRippleEffect = true;
     config.Position = NotyfPosition.TopRight;
 });
@@ -66,9 +64,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
  });
 //Jwt configuration ends here   
 var app = builder.Build();
-
-
-
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
