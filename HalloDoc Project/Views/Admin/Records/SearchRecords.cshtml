@@ -2,7 +2,7 @@
 @{
     Layout = "_AdminDashboardLayout";
 }
-<div class="container-md container-fluid ">
+<div class="">
     <div>
         <div class=" d-flex justify-content-between mt-3">
             <h4>Search Records</h4>
@@ -16,17 +16,17 @@
                 <span class="text-white">Export Data To Excel</span>
             </button>
         </div>
-        <div class="shadow dashboard-card container mt-4 pb-3 px-3">
+        <div class="shadow dashboard-card  mt-4 pb-3 px-3">
             <form id="search-record-filter-form">
                 <div class="row align-items-center">
                     <div class="col-lg-3 mt-3">
                         <div class="form-floating">
                             <select class="form-select" id="search-record-request-status" required name="requestStatus">
                                 <option selected value="0"> All Status </option>
-                                @* @foreach (var status in Model.RequestStatus)
+                                 @foreach (var status in Model.RequestStatus)
                                 {
                                     <option value="@status.Statusid">@status.Name</option>
-                                } *@
+                                } 
                             </select>
                             <label for="patient-state">Select Request Status</label>
                         </div>
@@ -43,10 +43,10 @@
                             <select class="form-select" id="search-record-request-type" required name="requestType">
                                 <option selected value="0">All Request Types</option>
 
-                                @* @foreach (var type in Model.RequestType)
+                                @foreach (var type in Model.RequestType)
                                 {
                                     <option value="@type.Requesttypeid">@type.Name</option>
-                                } *@
+                                } 
 
                             </select>
                             <label for="patient-state">Select Request Type</label>

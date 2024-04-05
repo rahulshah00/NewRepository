@@ -57,7 +57,7 @@ namespace BAL.Repository
             var adminRequests = (from r in _context.Requests
                                  join rc in _context.Requestclients on r.Requestid equals rc.Requestid
                                  where (filter.RequestTypeFilter == 0 || r.Requesttypeid == filter.RequestTypeFilter)
-                                 && (filter.RegionFilter == 0 || rc.Regionid == filter.RegionFilter)
+                                  && (filter.RegionFilter == 0 || rc.Regionid == filter.RegionFilter)
                                  && (string.IsNullOrEmpty(filter.PatientSearchText) || (rc.Firstname + " " + rc.Lastname).ToLower().Contains(filter.PatientSearchText.ToLower()))
                                  select new AdminRequestsViewModel
                                  {

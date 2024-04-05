@@ -1028,7 +1028,28 @@ namespace HalloDoc_Project.Controllers
             }
             return RedirectToAction("CreateRequestAdminDashboard");
         }
-
+        public IActionResult PatientHistoryPartialTable()
+        {
+            var PatientHistoryList = (from user in _context.Users
+                                      select new PatientHistoryTableViewModel
+                                      {
+                                        Email= user.Email,
+                                        FirstName=user.Firstname,
+                                        LastName=user.Lastname,
+                                        Address=user.Street+" "+user.City+" "+user.State+" "+user.Zipcode,
+                                        PhoneNumber=user.Mobile,
+                                        UserId=user.Aspnetuserid
+                                      }).ToList();
+            return PartialView("Records/PatienthistoryPartialTable",PatientHistoryList);
+        }
+        public IActionResult PatientHistory()
+        {
+            return View("Records/PatientHistory");
+        }
+        public IActionResult PatientRecords()
+        {
+            return View();
+        }
         [HttpPost]
         public IActionResult NewTable(int page, int region, int type, string search)
         {
@@ -1139,6 +1160,7 @@ namespace HalloDoc_Project.Controllers
                 pageSize = pagesize,
                 page = page,
             };
+
             AdminDashboardViewModel model = _adminTables.GetToCloseTable(filter);
             model.currentPage = pageNumber;
 
@@ -1324,7 +1346,7 @@ namespace HalloDoc_Project.Controllers
             }
             return RedirectToAction("ViewUploads", new { requestid = uploads.RequestID });
         }
-        public IActionResult SelectRecordsPartialTable()
+        public IActionResult SelectRecordsPartialTable(int requestStatus, string patientName, int requestType, string phoneNumber, DateTime? fromDateOfService, DateTime? toDateOfService, string providerName, string patientEmail)
         {
             var PatientRecords = (from r in _context.Requests
                                   join rc in _context.Requestclients on r.Requestid equals rc.Requestid
@@ -1333,6 +1355,14 @@ namespace HalloDoc_Project.Controllers
                                   join rt in _context.Requesttypes on r.Requesttypeid equals rt.Requesttypeid
                                   join phy in _context.Physicians on r.Physicianid equals phy.Physicianid into phyGroup
                                   from phyItem in phyGroup.DefaultIfEmpty()
+                                  where (requestStatus == 0 || r.Status == requestStatus)
+                                  && (string.IsNullOrEmpty(patientName) || (rc.Firstname + " " + rc.Lastname).ToLower().Contains(patientName.ToLower()))
+                                  && (requestType == 0 || r.Requesttypeid == requestType)
+                                  && (r.Accepteddate >= fromDateOfService || fromDateOfService == null)
+                                  && (r.Accepteddate <= toDateOfService || toDateOfService == null)
+                                  && (string.IsNullOrEmpty(providerName) || (r.Physician.Firstname + " " + r.Physician.Lastname).ToLower().Contains(providerName.ToLower()))
+                                  && (string.IsNullOrEmpty(patientEmail) || (rc.Email).ToLower().Contains(patientEmail))
+                                  && (string.IsNullOrEmpty(phoneNumber) || (rc.Phonenumber).ToLower().Contains(phoneNumber))
                                   select new SearchRecordsTableViewModel
                                   {
                                       PatientName = rc.Firstname + " " + rc.Lastname,
@@ -1348,13 +1378,18 @@ namespace HalloDoc_Project.Controllers
                                       AdminNotes = /*rn.Adminnotes*/"xxx",
                                       PatientNotes = "PatientNotes",
                                       PhysicianName = phyItem.Firstname + " " + phyItem.Lastname,
-                                      CancelledByPhysicianNotes="N/A"
+                                      CancelledByPhysicianNotes = "N/A"
                                   }).ToList();
-            return PartialView("Records/SearchRecordsPartialTable",PatientRecords);
+            return PartialView("Records/SearchRecordsPartialTable", PatientRecords);
         }
         public IActionResult SearchRecords()
         {
-            return View("Records/SearchRecords");
+            SearchRecordViewModel model = new SearchRecordViewModel()
+            {
+                RequestStatus = _context.Requeststatuses.ToList(),
+                RequestType = _context.Requesttypes.ToList()
+            };
+            return View("Records/SearchRecords", model);
         }
         public IActionResult FilterPhysicianByRegion(int regionid)
         {
