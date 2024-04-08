@@ -3,75 +3,73 @@
 }
 <div class="row d-flex justify-content-center">
     <div class="col-8">
-        <h5 class="my-3">Patient History</h5>
+        <h5 class="my-3">Block History</h5>
         <div class="shadow-lg p-3">
-            <div class="d-flex row">
-                
-                <div class="col-    -3 col-md-6 col-12">
+            <div class="d-flex">
+                <div class="col-xl-3 col-md-6 col-12">
                     <div class="form-floating m-3">
                         <input type="text" class="form-control" placeholder="First Name"
-                               id="patientHistoryFirstName" required>
-                        <label for="patientHistoryFirstName">First Name</label>
+                               id="blockHistoryFirstName" required>
+                        <label for="blockHistoryFirstName">First Name</label>
                     </div>
                 </div>
-                <div class="col-xl-3 col-md-6 col-12">
+                <div class="col-xl-3 col-md-6 col-12 ">
                     <div class="form-floating m-3">
                         <input type="text" class="form-control" placeholder="Last Name"
-                               id="patientHistoryLastName" required>
-                        <label for="patientHistoryLastName">Last Name</label>
+                               id="blockHistoryLastName" required>
+                        <label for="blockHistoryLastName">Last Name</label>
                     </div>
                 </div>
-                <div class="col-xl-3 col-md-6 col-12">
+                <div class="col-xl-3 col-md-6 col-12 ">
                     <div class="form-floating m-3">
                         <input type="text" class="form-control" placeholder="E-mail"
-                               id="patientHistoryEmail" required>
-                        <label for="patientHistoryEmail">Email</label>
+                               id="blockHistoryEmail" required>
+                        <label for="blockHistoryEmail">Email</label>
                     </div>
                 </div>
-                <div class="col-xl-3 col-md-6 col-12">
+                <div class="col-xl-3 col-md-6 col-12 ">
                     <div class="form-floating m-3">
                         <input type="text" class="form-control" placeholder="Phone Number"
-                               id="patientHistoryPhoneNumber" required>
-                        <label for="patientHistoryPhoneNumber">PhoneNumber</label>
+                               id="blockHistoryPhoneNumber" required>
+                        <label for="blockHistoryPhoneNumber">PhoneNumber</label>
                     </div>
                 </div>
             </div>
             <div class="text-end mx-3 ">
                 <div>
                     <button class="btn btn-outline-info" type="reset">Clear</button>
-                    <button class="btn btn-info text-light" type="submit" onclick="submitPatientHistoryFilters()">Submit</button>
+                    <button class="btn btn-info text-light" type="submit" onclick="submitBlockHistoryFilters()">Submit</button>
                 </div>
             </div>
-            <div id="loadPatientHistory"></div>
+            <div id="loadBlockHistory"></div>
         </div>
     </div>
 </div>
 <script>
     $(document).ready(function () {
         $.ajax({
-            url: "/Admin/PatientHistoryPartialTable",
+            url: "/Admin/BlockHistoryPartialTable",
             type: 'POST',
             data: {},
             success: function (result) {
-                $('#loadPatientHistory').html(result);
+                $('#loadBlockHistory').html(result);
             },
             complete: function () {
 
             },
             error: function (error) {
                 console.log(error);
-                alert('patient history')
+                alert('block history')
             },
         });
     })
-    function submitPatientHistoryFilters() {
-
+    function submitBlockHistoryFilters() {
         $.ajax({
-            url: "/Admin/PatientHistoryPartialTable",
+            url: "/Admin/BlockHistoryPartialTable",
             type: 'POST',
-            data: { FirstName: $("#patientHistoryFirstName").val(), LastName: $("#patientHistoryLastName").val(), Email: $("#patientHistoryEmail").val(), PhoneNo: $("#patientHistoryPhoneNumber").val() },
+            data: { FirstName: $("#blockHistoryFirstName").val(), LastName: $("#blockHistoryLastName").val(), Email: $("#blockHistoryEmail").val(), PhoneNo: $("#blockHistoryPhoneNumber").val() },
             success: function (result) {
-                $('#loadPatientHistory').html(result);
+                $('#loadBlockHistory').html(result);
             },
             complete: function () {
 

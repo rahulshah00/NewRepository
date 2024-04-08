@@ -1,5 +1,5 @@
 ﻿@model List<PatientHistoryTableViewModel>
-<div>
+<div class="table-responsive">
     <table class="table mt-3 px-3">
         <colgroup>
             <col span="1" style="width: 15%;">
@@ -29,10 +29,12 @@
                     <td>@Model[i].PhoneNumber</td>
                     <td>@Model[i].Address</td>
                     <td>
-                        <button class="btn btn-outline-info" asp-route-requestid="@Model[i].UserId">Explore</button>
+                        <a class="btn btn-outline-info" asp-action="PatientRecords" asp-controller="Admin" asp-route-Userid="@Model[i].UserId">Explore</a>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
 </div>
+
+

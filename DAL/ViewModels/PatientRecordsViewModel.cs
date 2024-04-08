@@ -12,8 +12,9 @@ namespace DAL.ViewModels
         public DateTime CreatedDate { get; set; }
         public string ConfirmationNo { get; set; }
         public string ProviderName { get; set; }
-        public DateTime ConcludedDate { get; set; }
+        public DateTime? ConcludedDate { get; set; } = DateTime.Now;
         public string Status { get; set; }
+        public int Requestid {  get; set; }
         
     }
 }

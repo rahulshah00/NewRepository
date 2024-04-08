@@ -17,43 +17,81 @@ namespace BAL.Repository
         {
             _context = context;
         }
-        public void EncounterFormPost(int requestid,EncounterFormViewModel model)
+        public void EncounterFormPost(int requestid, EncounterFormViewModel model)
         {
-            Encounterform ef = new()
+            var check = _context.Encounterforms.FirstOrDefault(x => x.Requestid == requestid);
+            if (check == null)
             {
-                Historyofpresentillnessorinjury = model.IllnessHistory,
-                Medicalhistory = model.MedicalHistory,
-                Medications = model.Medications,
-                Allergies = model.Allergies,
-                Temp = model.Temperature,
-                Hr = model.HR,
-                Rr = model.RR,
-                Bloodpressuresystolic = model.BPLow,
-                Bloodpressurediastolic = model.BPHigh,
-                O2 = model.O2,
-                Pain = model.Pain,
-                Heent = model.heent,
-                Cv = model.cv,
-                Chest = model.chest,
-                Abd = model.abd,
-                Extremities = model.extr,
-                Skin = model.skin,
-                Neuro = model.neuro,
-                TreatmentPlan = model.treatmentPlan,
-                Medicaldispensed = model.MedicationsDispensed,
-                Procedures = model.procedures,
-                Followup = model.followUps,
-                Requestid = model.requestId,
-                Diagnosis = model.diagnosis
-            };
-            _context.Add(ef);
-            _context.SaveChanges();
+                Encounterform ef = new()
+                {
+                    Historyofpresentillnessorinjury = model.IllnessHistory,
+                    Medicalhistory = model.MedicalHistory,
+                    Medications = model.Medications,
+                    Allergies = model.Allergies,
+                    Temp = model.Temperature,
+                    Hr = model.HR,
+                    Rr = model.RR,
+                    Bloodpressuresystolic = model.BPLow,
+                    Bloodpressurediastolic = model.BPHigh,
+                    O2 = model.O2,
+                    Pain = model.Pain,
+                    Heent = model.heent,
+                    Cv = model.cv,
+                    Chest = model.chest,
+                    Abd = model.abd,
+                    Extremities = model.extr,
+                    Skin = model.skin,
+                    Neuro = model.neuro,
+                    TreatmentPlan = model.treatmentPlan,
+                    Medicaldispensed = model.MedicationsDispensed,
+                    Procedures = model.procedures,
+                    Followup = model.followUps,
+                    Requestid = model.requestId,
+                    Diagnosis = model.diagnosis
+                };
+                _context.Add(ef);
+                _context.SaveChanges();
+
+            }
+            if (check != null)
+            {
+                Encounterform ef = new()
+                {
+                    Historyofpresentillnessorinjury = model.IllnessHistory,
+                    Medicalhistory = model.MedicalHistory,
+                    Medications = model.Medications,
+                    Allergies = model.Allergies,
+                    Temp = model.Temperature,
+                    Hr = model.HR,
+                    Rr = model.RR,
+                    Bloodpressuresystolic = model.BPLow,
+                    Bloodpressurediastolic = model.BPHigh,
+                    O2 = model.O2,
+                    Pain = model.Pain,
+                    Heent = model.heent,
+                    Cv = model.cv,
+                    Chest = model.chest,
+                    Abd = model.abd,
+                    Extremities = model.extr,
+                    Skin = model.skin,
+                    Neuro = model.neuro,
+                    TreatmentPlan = model.treatmentPlan,
+                    Medicaldispensed = model.MedicationsDispensed,
+                    Procedures = model.procedures,
+                    Followup = model.followUps,
+                    Requestid = model.requestId,
+                    Diagnosis = model.diagnosis
+                };
+                _context.Update(ef);
+                _context.SaveChanges();
+            }
+
         }
         public EncounterFormViewModel EncounterFormGet(int requestid)
         {
             var check = _context.Encounterforms.FirstOrDefault(x => x.Requestid == requestid);
             var user = _context.Requestclients.FirstOrDefault(x => x.Requestid == requestid);
-            EncounterFormViewModel EncModel = new()
+            EncounterFormViewModel EncModel = new EncounterFormViewModel()
             {
                 FirstName = user.Firstname,
                 LastName = user.Lastname,

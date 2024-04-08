@@ -2,12 +2,6 @@
 using DAL.DataContext;
 using DAL.DataModels;
 using DAL.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BAL.Repository
 {
@@ -59,7 +53,6 @@ namespace BAL.Repository
                 user.Physicianid = int.Parse(AssignPhysician);
 
                 _context.Update(user);
-                _context.SaveChanges();
 
                 Requeststatuslog requeststatuslog = new Requeststatuslog();
 
@@ -67,6 +60,8 @@ namespace BAL.Repository
                 requeststatuslog.Notes = AssignDescription;
                 requeststatuslog.Createddate = DateTime.Now;
                 requeststatuslog.Status = 2;
+
+
 
                 _context.Add(requeststatuslog);
                 _context.SaveChanges();
@@ -114,13 +109,32 @@ namespace BAL.Repository
                 _context.Add(requeststatuslog);
                 _context.SaveChanges();
 
-                Blockrequest blockRequest = new Blockrequest();
+                Blockrequest? blockRequest = _context.Blockrequests.FirstOrDefault(blockedrequest => blockedrequest.Requestid == requestid);
 
-                blockRequest.Requestid = requestid.ToString();
-                blockRequest.Createddate = DateTime.Now;
-                blockRequest.Email = user.Email;
-                blockRequest.Phonenumber = user.Phonenumber;
-                blockRequest.Reason = blocknotes ?? "--";
+                if (blockRequest != null)
+                {
+                    blockRequest.Requestid = requestid;
+                    blockRequest.Modifieddate = DateTime.Now;
+                    blockRequest.Email = user.Email;
+                    blockRequest.Phonenumber = user.Phonenumber;
+                    blockRequest.Reason = blocknotes ?? "--";
+                    blockRequest.Isactive= true;
+                    _context.Blockrequests.Update(blockRequest);
+                }
+                else
+                {
+                    Blockrequest blocked = new()
+                    {
+                        Requestid = requestid,
+                        Createddate = DateTime.Now,
+                        Email = user.Email,
+                        Phonenumber = user.Phonenumber,
+                        Reason = blocknotes ?? "--",
+                        Isactive = true
+                    };  
+                    _context.Blockrequests.Add(blocked);
+                }
+                _context.SaveChanges();
             }
         }
         public void TransferCase(int RequestId, string TransferPhysician, string TransferDescription, int adminid)
@@ -128,11 +142,10 @@ namespace BAL.Repository
             var req = _context.Requests.FirstOrDefault(h => h.Requestid == RequestId);
             if (req != null)
             {
-
                 req.Status = 2;
                 req.Modifieddate = DateTime.Now;
                 req.Physicianid = int.Parse(TransferPhysician);
-                
+
                 _context.Update(req);
                 _context.SaveChanges();
 
@@ -144,7 +157,7 @@ namespace BAL.Repository
                 requeststatuslog.Status = 2;
                 requeststatuslog.Transtophysicianid = int.Parse(TransferPhysician);
                 requeststatuslog.Adminid = adminid;
-                
+
                 _context.Add(requeststatuslog);
                 _context.SaveChanges();
             }
@@ -157,7 +170,7 @@ namespace BAL.Repository
                 Request req = _context.Requests.FirstOrDefault(req => req.Requestid == requestid);
                 req.Modifieddate = DateTime.Now;
 
-                Requeststatuslog reqStatusLog = new Requeststatuslog()
+                Requeststatuslog reqStatusLog = new()
                 {
                     Requestid = requestid,
                     Status = (short)RequestStatus.Clear,

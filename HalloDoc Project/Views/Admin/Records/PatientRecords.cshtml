@@ -1,4 +1,4 @@
-﻿@model PatientRecordsViewModel
+﻿@model List<PatientRecordsViewModel>
 @{
     Layout = "_AdminDashboardLayout";
 }
@@ -37,9 +37,32 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <th></th>
-                    </tr>
+                    @for(int i=0;i<Model.Count;i++)
+                    {
+                        <tr>
+                            <td>@Model[i].ClientName</td>
+                            <td>@Model[i].CreatedDate</td>
+                            <td>@Model[i].ConfirmationNo</td>
+                            <td>@Model[i].ProviderName</td>
+                            <td>@Model[i].ConcludedDate</td>
+                            <td>@Model[i].Status</td>
+                            <td>
+                                <a class="btn btn-outline-info" asp-action="FinalizeDownload" asp-controller="Admin" asp-route-requestid="@Model[i].Requestid">View</a>
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <a class="btn btn-outline-info " role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Actions
+                                    </a>
+
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" asp-action="ViewCase" asp-controller="Admin" asp-route-requestid="@Model[i].Requestid">View Case</a></li>
+                                        <li><a class="dropdown-item" asp-action="ViewUploads" asp-controller="Admin" asp-route-requestid="@Model[i].Requestid">View Uploads</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>

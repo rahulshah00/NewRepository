@@ -581,26 +581,6 @@
 <script type="text/javascript">
 
 
-    $('#selectregion').change(function () {
-        var selectedRegion = $("#selectregion").val();
-        $.ajax({
-            url: '/Admin/FilterPhysicianByRegion',
-            type: 'POST',
-            data: { regionid: selectedRegion },
-
-            success: function (response) {
-                console.log(response);
-                $('#selectphysician').empty();
-
-                $.each(response, function (index, item) {
-                    $('#selectphysician').append($('<option>').text(item.firstname).attr('value', item.Physicianid);
-                });
-            },
-            error: function (xhr, status, error) {
-                console.error('Error submitting form:', error);
-            }
-        });
-    })
 
     $('#AssignCaseForm').submit(function (event) {
         event.preventDefault();
