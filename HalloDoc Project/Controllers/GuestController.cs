@@ -134,14 +134,22 @@ namespace HalloDoc_Project.Controllers
             
             return View(fmfr);
         }
+
+        #region PATIENT REQUEST
         [HttpGet]
         public IActionResult create_patient_request()
         {
-            return View();
+            PatientModel patient = new()
+            {
+                Regions = _context.Regions.ToList()
+            };
+            return View(patient);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult create_patient_request(PatientModel pm)
+        
         {
             string path = _environment.WebRootPath;
             if (ModelState.IsValid)
@@ -150,8 +158,12 @@ namespace HalloDoc_Project.Controllers
                 _patient_Request.PRequest(pm,uniqueid, path);
                 return RedirectToAction("create_patient_request", "Guest");
             }
-            return View();
+
+            pm.Regions = _context.Regions.ToList();
+            return View(pm);
         }
+        #endregion
+
         public IActionResult SessionExpired()
         {
             return View();

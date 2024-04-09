@@ -83,6 +83,7 @@
                     <div class="col-12 col-sm-6 mt-4 ">
 
                         <div class="form-floating ">
+                            @*<input asp-for="" hidden id="" />*@
                             <input id="patient-phone" asp-for="PhoneNo" class="PatientInputs form-control" type="tel" autocomplete="off" />
                             <span class="validation" asp-validation-for="PhoneNo"></span>
                         </div>
@@ -90,6 +91,9 @@
                 </div>
                 <div class="row " id="hiddendiv" style="display:none">
                     <br />
+
+
+
 
                     <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating">
@@ -128,8 +132,20 @@
                 <div class="row ">
                     <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating">
-                            <input type="text" asp-for="State" class="PatientInputs form-control" id="floatingState" placeholder="state">
-                            <label for="floatingState">State</label>
+                            @* <input type="text" asp-for="State" class="PatientInputs form-control" id="floatingState" placeholder="state">
+                            <label for="floatingState">State</label> *@
+                            @* ---------------------------------------------------------------------------------------------------------------- *@
+                            <div class="form-floating">
+                                <select class="form-select" asp-for="State" id="floatingState" aria-label="Floating label select example">
+                                    <option selected disabled value="0">Select Your State</option>
+                                    @for(int i=0;i<Model.Regions.Count;i++)
+                                    {
+                                        <option value="@Model.Regions[i].Regionid">@Model.Regions[i].Name</option>
+                                    }
+                                </select>
+                                <label for="floatingState">State</label>
+                            </div>
+                            @* ---------------------------------------------------------------------------------------------------------------- *@
                             <span class="validation" asp-validation-for="State"></span>
 
                         </div>
@@ -172,7 +188,7 @@
                 </div>
                 <div class="row text-end">
                     <div class="">
-                        <button type="submit" class=" p-3 m-2 btn  btn-info text-light">
+                        <button type="submit" onclick="changeCountryCode()" class=" p-3 m-2 btn  btn-info text-light">
                             Submit
                         </button>
                         <button type="reset" class="p-3 m-2 btn btn-outline-info">
@@ -234,5 +250,35 @@
             $('#text_input_id').val(this.value.replace(/C:\\fakepath\\/i, ''))
         })
     </script>
+    <script>
+
+
+        let phoneInputField = document.querySelector("#phone");
+        let phoneInput = window.intlTelInput(phoneInputField, {
+            utilsScript:
+                "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+            preferredCountries: ["in"],
+            separateDialCode: true,
+            initialCountry: "in"
+        });
+        let phoneInputField1 = document.querySelector("#phone1");
+        let phoneInput1 = window.intlTelInput(phoneInputField1, {
+            utilsScript:
+                "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+            preferredCountries: ["in"],
+            separateDialCode: true,
+            initialCountry: "in"
+        });
+        function changeCountryCode() {
+            let countryCode = document.getElementById("flag");
+            countryCode.value = phoneInput.getSelectedCountryData().dialCode;
+            let countryCode1 = document.getElementById("flag1");
+            countryCode1.value = phoneInput1.getSelectedCountryData().dialCode;
+        }
+    </script>
 </body>
 </html>
+@* 
+    "+" + obj.code + "-" + obj.phone
+   +91-4659783219 
+*@

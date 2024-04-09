@@ -25,6 +25,7 @@ namespace BAL.Repository
         
         public void FRequest(FamilyFriendModel fmfr,string uniqueid,string path)
         {
+            var StateName=_context.Regions.FirstOrDefault(region=>region.Regionid==fmfr.PatientModel.State)?.Name;
             Request r = new()
             {
                 Requesttypeid = 3,
@@ -46,8 +47,9 @@ namespace BAL.Repository
                 Email = fmfr.PatientModel.Email,
                 Location = fmfr.PatientModel.City + fmfr.PatientModel.State,
                 City = fmfr.PatientModel.City,
-                State = fmfr.PatientModel.State,
-                Zipcode = fmfr.PatientModel.ZipCode
+                State = StateName,
+                Zipcode = fmfr.PatientModel.ZipCode,
+                Regionid=fmfr.PatientModel.State
 
             };
             _context.Requestclients.Add(rcl);
@@ -111,13 +113,14 @@ namespace BAL.Repository
                 Street = cm.ConStreet,
                 City = cm.ConCity,
                 State = cm.ConState,
-                Zipcode = cm.ConZipCode
+                Zipcode = cm.ConZipCode,
             };
             _context.Requestclients.Add(rcl);
             _context.SaveChanges();
         }
         public void PRequest(PatientModel pm, string uniqueid,string _path)
         {
+            var StateName = _context.Regions.FirstOrDefault(region => region.Regionid == pm.State);
             if (pm.Password != null)
             {
                 //var newvm=new PatientModel();
@@ -141,10 +144,11 @@ namespace BAL.Repository
                 user_obj.Mobile = pm.PhoneNo;
                 user_obj.Street = pm.Street;
                 user_obj.City = pm.City;
-                user_obj.State = pm.State;
+                user_obj.State = StateName.Name;
                 user_obj.Zipcode = pm.ZipCode;
                 user_obj.Createddate = DateTime.Now;
                 user_obj.Createdby = id;
+                user_obj.Regionid = pm.State;
                 _context.Users.Add(user_obj);
                 _context.SaveChanges();
 
@@ -160,6 +164,9 @@ namespace BAL.Repository
                 request.Patientaccountid = id;
                 request.Status = 1;
                 request.Createduserid = user_obj.Userid;
+                request.Confirmationnumber = _passwordHasher.GenerateConfirmationNumber(user_obj);
+                
+
                 _context.Requests.Add(request);
                 _context.SaveChanges();
 
@@ -173,9 +180,12 @@ namespace BAL.Repository
                 rc.Address = pm.RoomSuite + ", " + pm.Street + ", " + pm.City + ", " + pm.State + ", " + pm.ZipCode;
                 rc.Street = pm.Street;
                 rc.City = pm.City;
-                rc.State = pm.State;
+                rc.State = StateName.Name;
                 rc.Zipcode = pm.ZipCode;
                 rc.Notes = pm.Symptoms;
+                rc.Regionid =pm.State;
+                
+
 
                 _context.Requestclients.Add(rc);
                 _context.SaveChanges();
@@ -227,7 +237,7 @@ namespace BAL.Repository
                 rc.Address = pm.RoomSuite + ", " + pm.Street + ", " + pm.City + ", " + pm.State + ", " + pm.ZipCode;
                 rc.Street = pm.Street;
                 rc.City = pm.City;
-                rc.State = pm.State;
+                rc.State = StateName.Name;
                 rc.Zipcode = pm.ZipCode;
                 rc.Notes = pm.Symptoms;
 

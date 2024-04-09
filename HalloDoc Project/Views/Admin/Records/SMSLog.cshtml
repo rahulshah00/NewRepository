@@ -1,4 +1,4 @@
-﻿@model EmailLogViewModel
+﻿@model SMSLogViewModel
 @{
     Layout = "_AdminDashboardLayout";
 };
@@ -21,7 +21,7 @@
             <form>
                 <div class="row">
                     <div class="col-md-4 col-sm-6 col-12 form-floating mt-3 temp">
-                        <select id="emailLogRole" class="form-select inputs">
+                        <select id="SMSLogRole" class="form-select inputs">
                             <option value="0" selected>All</option>
                             @for (int i = 0; i < Model.roles.Count; i++)
                             {
@@ -31,42 +31,42 @@
                         <label class="input_labels">Search By Role</label>
                     </div>
                     <div class="col-md-4 col-sm-6 col-12 form-floating mt-3 temp">
-                        <input id="emailLogReceiverName" type="text" class="form-control inputs border" placeholder="Receiver Name">
+                        <input id="SMSLogReceiverName" type="text" class="form-control inputs border" placeholder="Receiver Name">
                         <label for="floatingInput" class="ms-2 input_labels">Receiver Name</label>
                     </div>
                     <div class="col-md-4 col-sm-6 col-12 form-floating mt-3 temp">
-                        <input id="emailLogEmail" type="email" class="form-control inputs border" placeholder="Email">
-                        <label for="floatingInput" class="ms-2 input_labels">Email</label>
+                        <input id="SMSLogPhoneNo" type="email" class="form-control inputs border" placeholder="Email">
+                        <label for="floatingInput" class="ms-2 input_labels">Phone Number</label>
                     </div>
 
                     <div class="col-md-4 col-sm-6 col-12 form-floating mt-3 temp">
-                        <input id="emailLogCreatedDate" type="date" class="form-control inputs border" placeholder="Created Date">
+                        <input id="SMSLogCreatedDate" type="date" class="form-control inputs border" placeholder="Created Date">
                         <label for="floatingInput" class="ms-2 input_labels">Created Date</label>
                     </div>
 
                     <div class="col-md-4 col-sm-6 col-12 form-floating mt-3 temp">
-                        <input id="emailLogSentDate" type="date" class="form-control inputs border" placeholder="Sent Date">
+                        <input id="SMSLogSentDate" type="date" class="form-control inputs border" placeholder="Sent Date">
                         <label for="floatingInput" class="ms-2 input_labels">Sent Date</label>
                     </div>
 
                     <div class="col-md-4 col-sm-6 col-12 text-end mt-4">
-                        <button class="btn btn-info px-3 text-light" id="emailLogSearch" type="button" onclick="submitEmailLogFilters()">Search</button>
+                        <button class="btn btn-info px-3 text-light" id="smsLogSearch" type="button" onclick="submitSMSLogFilters()">Search</button>
                         <button class="btn btn-outline-info " type="reset">Clear</button>
                     </div>
                 </div>
             </form>
-            <div class="mt-5 mb-4" id="loadEmailLogs"></div>
+            <div class="mt-5 mb-4" id="loadSMSLogs"></div>
         </div>
     </div>
 </div>
 <script>
     // $(document).ready(function () {
     //     $.ajax({
-    //         url: "/Admin/EmailLogPartialTable",
+    //         url: "/Admin/SMSLogPartialTable",
     //         type: 'POST',
     //         data: {},
     //         success: function (result) {
-    //             $('#loadEmailLogs').html(result);
+    //             $('#loadSMSLogs').html(result);
     //         },
     //         error: function (error) {
     //             console.log(error);
@@ -74,22 +74,22 @@
     //         },
     //     });
     // })
-    function submitEmailLogFilters() {
+    function submitSMSLogFilters() {
         $.ajax({
-            url: "/Admin/EmailLogPartialTable",
+            url: "/Admin/SMSLogPartialTable",
             type: 'POST',
-            data: { RoleId: $('#emailLogRole').val(), ReceiverName: $("#emailLogReceiverName").val(), Email: $("#emailLogEmail").val(), CreatedDate: $("#emailLogCreatedDate").val(), SentDate: $("#emailLogSentDate").val() },
+            data: { RoleId: $('#SMSLogRole').val(), ReceiverName: $("#SMSLogReceiverName").val(), PhoneNo: $("#SMSLogPhoneNo").val(), CreatedDate: $("#SMSLogCreatedDate").val(), SentDate: $("#SMSLogSentDate").val() },
             success: function (result) {
-                $('#loadEmailLogs').html(result);
+                $('#loadSMSLogs').html(result);
             },
             complete: function () {
 
             },
             error: function (error) {
                 console.log(error);
-                alert('email logs error')
+                alert('sms logs error')
             },
         });
     }
-    $("#emailLogSearch").click();
+    $("#smsLogSearch").click();
 </script>

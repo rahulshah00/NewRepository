@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DAL.DataModels;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -29,7 +30,7 @@ namespace DAL.ViewModels
 
         public string? City { get; set; }
 
-        public string? State { get; set; }
+        public int? State { get; set; }
    
         public string? ZipCode { get; set; }
         
@@ -39,6 +40,7 @@ namespace DAL.ViewModels
         public string? Password { get; set; }
         [Compare("Password", ErrorMessage = "Password and Confirm-Password should have same value.")]
         public string? ConfirmPass{ get; set; }
+        public List<Region>? Regions { get; set; }
         
     }
 }

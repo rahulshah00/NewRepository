@@ -7,9 +7,6 @@ using BAL.Interfaces;
 using ClosedXML.Excel;
 using Rotativa.AspNetCore;
 using System.Text.Json.Nodes;
-using System.Numerics;
-using AspNetCore;
-using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace HalloDoc_Project.Controllers
 {
@@ -1471,42 +1468,42 @@ namespace HalloDoc_Project.Controllers
         {
             return View("Records/BlockHistory");
         }
-        public IActionResult BlockHistoryPartialTable(string FirstName,string LastName, string Email, string PhoneNo)
+        public IActionResult BlockHistoryPartialTable(string FirstName, string LastName, string Email, string PhoneNo)
         {
             var BlockHistoryRecords = (from blockedRequests in _context.Blockrequests
                                        join patientRequests in _context.Requests
                                        on blockedRequests.Requestid equals patientRequests.Requestid
                                        join clientRequests in _context.Requestclients
                                        on blockedRequests.Requestid equals clientRequests.Requestid
-                                       where blockedRequests.Isactive == true 
-                                       &&(string.IsNullOrEmpty(Email) || clientRequests.Email.ToLower().Contains(Email))
-                                      && (string.IsNullOrEmpty(FirstName) || clientRequests.Firstname.ToLower().Contains(FirstName))
-                                      && (string.IsNullOrEmpty(LastName) || clientRequests.Lastname.ToLower().Contains(LastName))
-                                      && (string.IsNullOrEmpty(PhoneNo) || clientRequests.Phonenumber.ToLower().Contains(PhoneNo))
+                                       where blockedRequests.Isactive == true
+                                       && (string.IsNullOrEmpty(Email) || clientRequests.Email.ToLower().Contains(Email))
+                                       && (string.IsNullOrEmpty(FirstName) || clientRequests.Firstname.ToLower().Contains(FirstName))
+                                       && (string.IsNullOrEmpty(LastName) || clientRequests.Lastname.ToLower().Contains(LastName))
+                                       && (string.IsNullOrEmpty(PhoneNo) || clientRequests.Phonenumber.ToLower().Contains(PhoneNo))
                                        select new BlockHistoryViewModel
                                        {
-                                           PatientName = clientRequests.Firstname+" "+clientRequests.Lastname,
+                                           PatientName = clientRequests.Firstname + " " + clientRequests.Lastname,
                                            PhoneNo = clientRequests.Phonenumber ?? " ",
                                            Email = clientRequests.Email ?? " ",
-                                           CreatedDate= patientRequests.Createddate,
-                                           Notes=clientRequests.Notes ?? " " ,
-                                           IsActive=blockedRequests.Isactive ?? true, 
-                                           RequestId=clientRequests.Requestid                                           
+                                           CreatedDate = patientRequests.Createddate,
+                                           Notes = clientRequests.Notes ?? " ",
+                                           IsActive = blockedRequests.Isactive ?? true,
+                                           RequestId = clientRequests.Requestid
                                        }).ToList();
-            return PartialView("Records/BlockHistoryPartialTable",BlockHistoryRecords);
+            return PartialView("Records/BlockHistoryPartialTable", BlockHistoryRecords);
         }
         public IActionResult UnblockRequest(int requestid)
         {
-            var BlockedRequest = _context.Blockrequests.FirstOrDefault(request=>request.Requestid==requestid);
-            if(BlockedRequest!=null)
+            var BlockedRequest = _context.Blockrequests.FirstOrDefault(request => request.Requestid == requestid);
+            if (BlockedRequest != null)
             {
-                BlockedRequest.Modifieddate= DateTime.Now;
+                BlockedRequest.Modifieddate = DateTime.Now;
                 BlockedRequest.Isactive = false;
                 _context.Blockrequests.Update(BlockedRequest);
 
             }
             var Request = _context.Requests.FirstOrDefault(request => request.Requestid == requestid);
-            if(Request!=null)
+            if (Request != null)
             {
                 Request.Status = 1;
                 _context.Requests.Update(Request);
@@ -1517,29 +1514,235 @@ namespace HalloDoc_Project.Controllers
         #endregion
 
         #region EMAIL LOG RECORDS
-        
+
         public IActionResult EmailLogs()
         {
-            return View("Records/EmailLog");
+            EmailLogViewModel emaildata = new()
+            {
+                roles = _context.Roles.ToList()
+            };
+            return View("Records/EmailLog",emaildata);
         }
-        public IActionResult EmailLogsPartialTable()
+        public IActionResult EmailLogPartialTable(string ReceiverName, string Email, DateTime? CreatedDate, DateTime? SentDate,int RoleId)
         {
             var EmailList = (from emails in _context.Emaillogs
+                             join roles in _context.Roles on emails.Roleid equals roles.Roleid
+                             where (string.IsNullOrEmpty(ReceiverName) /*|| emails.Recipient.ToLower().Contains(ReceiverName)*/)
+                             && (string.IsNullOrEmpty(Email) || emails.Emailid.ToLower().Contains(Email))
+                             && (CreatedDate == emails.Createdate.Date || CreatedDate== null)
+                             && (SentDate == emails.Sentdate.Value.Date || SentDate==null)
+                             && (RoleId ==0 || RoleId==emails.Roleid)
                              select new EmailLogViewModel
                              {
                                  Action = emails.Subjectname,
                                  RoleId = emails.Roleid,
                                  Email = emails.Emailid,
-                                 CreateDate = DateTime.Now,
+                                 CreateDate = emails.Createdate,
                                  SentDate = emails.Sentdate,
                                  Sent = false,
-                                 SentTries = 1
+                                 SentTries = 1,
+                                 ConfirmationNumber = emails.Confirmationnumber ?? "n/a"
                              }).ToList();
-            return View("records/EmailLog",EmailList);
+            return PartialView("Records/EmailLogPartialTable", EmailList);
         }
-
         #endregion
 
+        #region SMS LOG RECORDS
+        public IActionResult SMSLogs()
+        {
+            SMSLogViewModel SMSdata = new()
+            {
+                roles = _context.Roles.ToList()
+            };
+            return View("Records/SMSLog", SMSdata);
+        }
+        public IActionResult SMSLogPartialTable(string ReceiverName, string PhoneNo, DateTime? CreatedDate, DateTime? SentDate, int RoleId)
+        {
+            var SMSList = (from sms in _context.Smslogs
+                             join roles in _context.Roles on sms.Roleid equals roles.Roleid
+                             where (string.IsNullOrEmpty(ReceiverName) /*|| emails.Recipient.ToLower().Contains(ReceiverName)*/)
+                             && (string.IsNullOrEmpty(PhoneNo) || sms.Mobilenumber.ToLower().Contains(PhoneNo))
+                             && (CreatedDate == sms.Createdate.Date || CreatedDate == null)
+                             && (SentDate == sms.Sentdate.Value.Date || SentDate == null)
+                             && (RoleId == 0 || RoleId == sms.Roleid)
+                             select new SMSLogViewModel
+                             {
+                                 Action = sms.Action.ToString(),
+                                 RoleId = sms.Roleid,
+                                 MoblieNumber = sms.Mobilenumber,
+                                 CreateDate =sms.Createdate,
+                                 SentDate = sms.Sentdate,
+                                 Sent = false,
+                                 SentTries = 1,
+                                 ConfirmationNumber = sms.Confirmationnumber ?? "n/a"
+                             }).ToList();
+            return PartialView("Records/SMSLogPartialTable", SMSList);
+        }
+        #endregion
+
+        #region VENDOR DETAILS / CREATE VENDORS / EDIT VENDORS
+        public IActionResult VendorDetails()
+        {
+            //int adminId = (int)HttpContext.Session.GetString("Email");
+            //Admin admin = _context.Admins.FirstOrDefault(u => u.email == adminId);
+            var type = _context.Healthprofessionaltypes.ToList();
+
+            VendorDetailsViewModel model = new VendorDetailsViewModel();
+
+            //model.UserName = admin.Firstname + " " + admin.Lastname;
+            model.Healthprofessionaltypes = type;
+
+            return View("Partners/VendorDetails", model);
+        }
+
+        public IActionResult VendorsFilter(string filterSearch, int filterProfession)
+        {
+            VendorDetailsViewModel model = new VendorDetailsViewModel();
+
+            var list = from professionals in _context.Healthprofessionals
+                       join types in _context.Healthprofessionaltypes on professionals.Profession equals types.Healthprofessionalid into professionGroup
+                       from proType in professionGroup.DefaultIfEmpty()
+                       where (string.IsNullOrEmpty(filterSearch) || professionals.Vendorname.ToLower().Contains(filterSearch.ToLower()))
+                       && (filterProfession == 0 || filterProfession == proType.Healthprofessionalid)
+                       && (professionals.Isdeleted != true)
+                       select new VendorDetailsTableViewModel
+                       {
+                           profession = proType.Professionname,
+                           businessName = professionals.Vendorname,
+                           email = professionals.Email,
+                           faxNumber = professionals.Faxnumber,
+                           phone = professionals.Phonenumber,
+                           businessContact = professionals.Businesscontact,
+                           vendorId = professionals.Vendorid
+                       };
+
+            model.VendorsTable = list.ToList();
+            return PartialView("Partners/VendorDetailsPartialTable", model);
+        }
+
+        public IActionResult DeleteVendor(int id)
+        {
+            var vendor = _context.Healthprofessionals.FirstOrDefault(x => x.Vendorid == id);
+
+            vendor.Isdeleted = true;
+
+            _context.Healthprofessionals.Update(vendor);
+            _context.SaveChanges();
+
+            return RedirectToAction("VendorDetails");
+        }
+
+
+        public IActionResult AddBusiness()
+        { 
+        
+        //    int adminId = (int)HttpContext.Session.GetInt32("adminId");
+        //    Admin admin = _context.Admins.FirstOrDefault(u => u.Adminid == adminId);
+            var types = _context.Healthprofessionaltypes.ToList();
+            var region = _context.Regions.ToList();
+
+            CreateUpdateVendorViewModel model = new CreateUpdateVendorViewModel();
+            //model.UserName = admin.Firstname + " " + admin.Lastname;
+            model.types = types;
+            model.regions = region;
+
+            return View("Partners/AddBusiness", model);
+        }
+
+        [HttpPost]
+        public IActionResult AddBusiness(CreateUpdateVendorViewModel model)
+        {
+            var mobile = "+" + model.code + "-" + model.phone;
+            var mobile1 = "+" + model.code1 + "-" + model.phone1;
+
+
+            //int adminId = (int)HttpContext.Session.GetInt32("adminId");
+            //Admin admin = _context.Admins.FirstOrDefault(u => u.Adminid == adminId);
+            var region = _context.Regions.FirstOrDefault(x => x.Regionid == model.state);
+
+            Healthprofessional profession = new Healthprofessional()
+            {
+                Vendorname = model.BusinessName,
+                Profession = model.type,
+                Faxnumber = model.Fax,
+                Phonenumber = mobile,
+                Email = model.Email,
+                Businesscontact = mobile1,
+                Address = model.street,
+                City = model.city,
+                State = region.Name,
+                Zip = model.zip,
+                Regionid = model.state,
+                Createddate = DateTime.Now,
+            };
+
+            _context.Healthprofessionals.Add(profession);
+            _context.SaveChanges();
+
+            return RedirectToAction("VendorDetails");
+        }
+
+
+        public IActionResult EditBusiness(int id)
+        {
+            //int adminId = (int)HttpContext.Session.GetInt32("adminId");
+            //Admin admin = _context.Admins.FirstOrDefault(u => u.Adminid == adminId);
+
+            var types = _context.Healthprofessionaltypes.ToList();
+            var region = _context.Regions.ToList();
+
+
+            Healthprofessional vendor = _context.Healthprofessionals.FirstOrDefault(x => x.Vendorid == id);
+
+            CreateUpdateVendorViewModel model = new CreateUpdateVendorViewModel();
+
+            //model.UserName = admin.Firstname + " " + admin.Lastname;
+            model.types = types;
+            model.regions = region;
+            model.BusinessName = vendor.Vendorname;
+            model.type = vendor.Profession;
+            model.Fax = vendor.Faxnumber;
+            model.phone = vendor.Phonenumber;
+            model.Email = vendor.Email;
+            model.phone1 = vendor.Businesscontact;
+            model.street = vendor.Address;
+            model.city = vendor.City;
+            model.state = vendor.Regionid;
+            model.zip = vendor.Zip;
+            model.id = id;
+
+            return View("Partners/EditBusiness", model);
+        }
+
+        [HttpPost]
+        public IActionResult EditBusiness(CreateUpdateVendorViewModel model)
+        {
+            var mobile = "+" + model.code + "-" + model.phone;
+            var mobile1 = "+" + model.code1 + "-" + model.phone1;
+
+            var region = _context.Regions.FirstOrDefault(x => x.Regionid == model.state);
+
+            Healthprofessional vendor = _context.Healthprofessionals.FirstOrDefault(x => x.Vendorid == model.id);
+
+            vendor.Vendorname = model.BusinessName;
+            vendor.Profession = model.type;
+            vendor.Faxnumber = model.Fax;
+            vendor.Phonenumber = mobile;
+            vendor.Email = model.Email;
+            vendor.Businesscontact = mobile1;
+            vendor.Address = model.street;
+            vendor.City = model.city;
+            vendor.State = region.Name;
+            vendor.Zip = model.zip;
+            vendor.Regionid = model.state;
+            vendor.Modifieddate = DateTime.Now;
+
+            _context.Healthprofessionals.Update(vendor);
+            _context.SaveChanges();
+
+            return RedirectToAction("EditBusiness", model.id);
+        }
+        #endregion
 
         public IActionResult Logout()
         {

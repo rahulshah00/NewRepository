@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DAL.DataModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,5 +17,8 @@ namespace DAL.ViewModels
         public DateTime? SentDate { get; set; }
         public bool Sent {  get; set; }
         public int SentTries {  get; set; }
+        public string ConfirmationNumber {  get; set; }
+        public List<Role> roles { get; set; }   
+
     }
 }
