@@ -16,8 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.1.min.js"
-            integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous">
     </script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
@@ -70,7 +69,7 @@
                     </div>
                 </div>
                 <div class="row mt-4">
-                    <h5 for="">Patient Contact Information</h5>
+                    <h5>Patient Contact Information</h5>
                 </div>
                 <div class="row ">
                     <div class="col-12 col-sm-6 mt-4">
@@ -83,18 +82,14 @@
                     <div class="col-12 col-sm-6 mt-4 ">
 
                         <div class="form-floating ">
-                            @*<input asp-for="" hidden id="" />*@
-                            <input id="patient-phone" asp-for="PhoneNo" class="PatientInputs form-control" type="tel" autocomplete="off" />
+                            <input asp-for="@Model.CountryCode" id="flag" hidden/>
+                            <input id="phone" asp-for="PhoneNo" class="PatientInputs form-control" type="tel" autocomplete="off" />
                             <span class="validation" asp-validation-for="PhoneNo"></span>
                         </div>
                     </div>
                 </div>
                 <div class="row " id="hiddendiv" style="display:none">
                     <br />
-
-
-
-
                     <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating">
                             <input type="password" asp-for="Password" placeholder="Password" class="PatientInputs form-control" id="passwordfloat">
@@ -138,7 +133,7 @@
                             <div class="form-floating">
                                 <select class="form-select" asp-for="State" id="floatingState" aria-label="Floating label select example">
                                     <option selected disabled value="0">Select Your State</option>
-                                    @for(int i=0;i<Model.Regions.Count;i++)
+                                    @for (int i = 0; i < Model.Regions.Count; i++)
                                     {
                                         <option value="@Model.Regions[i].Regionid">@Model.Regions[i].Name</option>
                                     }
@@ -202,39 +197,31 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
     </script>
-    <script>
+    
 
-        var phoneInputField = document.querySelector("#patient-phone");
-        var phoneInput = window.intlTelInput(phoneInputField, {
-            utilsScript:
-                "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
-        });
-    </script>
-    @section Scripts {
-        <script src="~/lib/jquery/dist/jquery.min.js"></script>
-        <script type="text/javascript">
-            $(document).ready(function () {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
 
-                $('#emailfloat').on('blur', function () {
-                    var email = $(this).val();
-                    $.ajax({
-                        url: '/Home/CheckEmail',
-                        type: 'POST',
-                        data: { email: email },
-                        success: function (data) {
-                            if (!data.exists) {
-                                $('#hiddendiv').show();
+            $('#emailfloat').on('blur', function () {
+                var email = $(this).val();
+                $.ajax({
+                    url: '/Guest/CheckEmail',
+                    type: 'POST',
+                    data: { email: email },
+                    success: function (data) {
+                        if (!data.exists) {
+                            $('#hiddendiv').show();
 
-                            }
-                            else {
-                                $('#hiddendiv').hide();
-                            }
                         }
-                    });
+                        else {
+                            $('#hiddendiv').hide();
+                        }
+                    }
                 });
             });
-        </script>
-    }
+        });
+    </script>
 
     <script>
         // bind file-input-form click action to text-input-span
@@ -251,18 +238,8 @@
         })
     </script>
     <script>
-
-
         let phoneInputField = document.querySelector("#phone");
         let phoneInput = window.intlTelInput(phoneInputField, {
-            utilsScript:
-                "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
-            preferredCountries: ["in"],
-            separateDialCode: true,
-            initialCountry: "in"
-        });
-        let phoneInputField1 = document.querySelector("#phone1");
-        let phoneInput1 = window.intlTelInput(phoneInputField1, {
             utilsScript:
                 "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
             preferredCountries: ["in"],
@@ -272,13 +249,11 @@
         function changeCountryCode() {
             let countryCode = document.getElementById("flag");
             countryCode.value = phoneInput.getSelectedCountryData().dialCode;
-            let countryCode1 = document.getElementById("flag1");
-            countryCode1.value = phoneInput1.getSelectedCountryData().dialCode;
         }
-    </script>
+    </script> 
 </body>
 </html>
 @* 
     "+" + obj.code + "-" + obj.phone
-   +91-4659783219 
-*@
+   +91-4659783219
+ *@

@@ -62,6 +62,12 @@ namespace HalloDoc_Project.Controllers
         {
             return View();
         }
+        [HttpPost]
+        public JsonResult CheckEmail(string email)
+        {
+            bool emailExists = _context.Users.Any(u => u.Email == email);
+            return Json(new { exists = emailExists });
+        }
         public IActionResult PrivacyPolicy()
         {
             return View();
@@ -101,7 +107,9 @@ namespace HalloDoc_Project.Controllers
         [HttpGet]
         public IActionResult Concierge_info()
         {
-            return View();
+            ConciergeModel model = new ConciergeModel();
+            model.Regions = _context.Regions.ToList();
+            return View(model);
         }
         [HttpPost]
         [AutoValidateAntiforgeryToken]
@@ -112,11 +120,14 @@ namespace HalloDoc_Project.Controllers
                 _patient_Request.CRequest(cm);
                 return RedirectToAction("Concierge_info","Guest");
             }
-            return View();
+            cm.Regions=_context.Regions.ToList();
+            return View(cm);
         }
         public IActionResult Friend_family()
         {
-            return View();
+            FamilyFriendModel familyFriendModel = new FamilyFriendModel();
+            familyFriendModel.PatientRegions = _context.Regions.ToList();
+            return View(familyFriendModel);
         }
         [HttpPost]
         [AutoValidateAntiforgeryToken]
@@ -129,13 +140,12 @@ namespace HalloDoc_Project.Controllers
                 var uniqueid = Guid.NewGuid().ToString();
                 _patient_Request.FRequest(fmfr,uniqueid,path);
                 return RedirectToAction("Friend_Family", "Guest");
-
             }
-            
+            fmfr.PatientRegions = _context.Regions.ToList();
             return View(fmfr);
         }
 
-        #region PATIENT REQUEST
+        #region PATIENT REQUEST 
         [HttpGet]
         public IActionResult create_patient_request()
         {
@@ -149,7 +159,6 @@ namespace HalloDoc_Project.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult create_patient_request(PatientModel pm)
-        
         {
             string path = _environment.WebRootPath;
             if (ModelState.IsValid)

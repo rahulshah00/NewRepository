@@ -39,3 +39,7 @@
         background-color: lightskyblue;
         color: black;
     }
+
+.iti__country-list{
+    z-index:5;
+}

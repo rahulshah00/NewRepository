@@ -31,12 +31,12 @@ namespace BAL.Repository
         }
         public string GenerateConfirmationNumber(User user)
         {
-                string regionAbbr = _context.Regions.FirstOrDefault(region => region.Regionid == user.Regionid).Abbreviation;
+            string regionAbbr = _context.Regions.FirstOrDefault(region => region.Regionid == user.Regionid).Abbreviation;
 
             DateTime todayStart = DateTime.Now.Date;
             int count = _context.Requests.Count(req => req.Createddate > todayStart);
 
-            string confirmationNumber = regionAbbr + user.Createddate.Date.ToString("D2") + user.Createddate.Month.ToString("D2") + user.Lastname.Substring(0, 2).ToUpper() + user.Firstname.Substring(0, 2).ToUpper() + (count + 1).ToString("D4");
+            string confirmationNumber = regionAbbr + user.Createddate.Day.ToString("D2") + user.Createddate.Month.ToString("D2") + user.Lastname.Substring(0, 2).ToUpper() + user.Firstname.Substring(0, 2).ToUpper() + (count + 1).ToString("D4");
             return confirmationNumber;
         }
     }

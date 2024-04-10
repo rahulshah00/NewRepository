@@ -16,7 +16,7 @@ namespace DAL.ViewModels
         public string FirstName { get; set; }
         public string? LastName { get; set; }
         [Required]
-        public string DateOfBirth { get; set; } = string.Empty;
+        public DateTime? DateOfBirth { get; set; } 
         [Required]
         //[RegularExpression("^([\\w\\.\\-]+)@([\\w\\-]+)((\\.(\\w){2,3})+)$", ErrorMessage = "Enter Valid Email")]
         public string Email { get; set; } = string.Empty;
@@ -34,11 +34,13 @@ namespace DAL.ViewModels
    
         public string? ZipCode { get; set; }
         
+        public string CountryCode {  get; set; }=string.Empty;  
+
         public string? RoomSuite { get; set; }
 
         public IFormFile? File{ get; set; }
         public string? Password { get; set; }
-        [Compare("Password", ErrorMessage = "Password and Confirm-Password should have same value.")]
+        //[Compare("Password", ErrorMessage = "Password and Confirm-Password should have same value.")]
         public string? ConfirmPass{ get; set; }
         public List<Region>? Regions { get; set; }
         

@@ -67,6 +67,7 @@
         .PatientInputs:focus-within + label {
             color: #10bce9 !important;
         }
+
         #filename {
             padding: 0.5em;
             /* / width:93%; / */
@@ -92,24 +93,6 @@
 
 
 <body style="width:100%;" class="">
-    <!--<nav class="navbar navigationbar navbar-light bg-light shadow bg-white rounded w-100">
-        <div class="w-100 align-items-center" style="display:contents;">
-            <div class="">
-                <a href="#" class="navbar-brand">
-                    <img src="/SRS Screen Shorts/HalloDoc LOGO.png" alt="" height="80vh">
-                </a>
-            </div>
-            <div class="justify-content-end float-end me-3">
-                <button class="btn">
-                    <svg xmlns="" width="16" height="16" fill="#10bce9"
-                        class="bi bi-moon-fill" viewBox="0 0 16 16">
-                        <path
-                            d="M6 .278a.77.77 0 0 1 .08.858 7.2 7.2 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277q.792-.001 1.533-.16a.79.79 0 0 1 .81.316.73.73 0 0 1-.031.893A8.35 8.35 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.75.75 0 0 1 6 .278" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </nav>-->
     <br>
 
     <div class="row justify-content-end">
@@ -123,7 +106,7 @@
     </div>
     <div class="row mb-4 d-flex justify-content-center">
         <div class="col-11 col-sm-10 col-md-9 col-lg-8 shadow-lg">
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 <div class="row mt-4">
                     <h5>Friend / Family Information</h5>
                 </div>
@@ -146,7 +129,8 @@
                 <div class="row">
                     <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating ">
-                            <input id="famfrnd-phone" asp-for="phone" class="PatientInputs form-control" type="tel" ></input>
+                            <input hidden asp-for="FriendFamilyCountryCode" id="flag" />
+                            <input id="phone" asp-for="FriendFamilyPhoneNo" class="PatientInputs form-control" type="tel" />
                         </div>
                     </div>
                     <div class="col-12 col-sm-6 mt-4">
@@ -204,10 +188,9 @@
                     <div class="col-12 col-sm-6 mt-4 ">
 
                         <div class="form-floating ">
-                            <input id="patient-phone" asp-for="PatientModel.PhoneNo" class="PatientInputs form-control" type="tel"></input>
+                            <input hidden asp-for="PatientModel.CountryCode" id="flag1" />
+                            <input id="phone1" asp-for="PatientModel.PhoneNo" class="PatientInputs form-control" type="tel"></input>
                         </div>
-
-
                     </div>
                 </div>
                 <div class="row mt-4">
@@ -216,10 +199,9 @@
                 <div class="row ">
                     <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating">
-                            <input asp-for="PatientModel.Email" type="email" class="PatientInputs form-control" id="floatingEmail" placeholder="Email ">
-                            <label for="floatingEmail">Email address</label>
+                            <input asp-for="PatientModel.Street" type="text " class="PatientInputs form-control" id="PatientStreet" placeholder="Email ">
+                            <label for="PatientStreet">Street</label>
                         </div>
-
                     </div>
                     <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating">
@@ -232,8 +214,16 @@
                 <div class="row ">
                     <div class="col-12 col-sm-6 mt-4">
                         <div class="form-floating">
-                            <input type="text" asp-for="PatientModel.State" class="PatientInputs form-control" id="floatingState" placeholder="state">
-                            <label for="floatingState">State</label>
+                            <div class="form-floating">
+                                <select class="form-select" asp-for="PatientModel.State" id="floatingState" aria-label="Floating label select example">
+                                    <option selected disabled value="0">Select Your State</option>
+                                    @for (int i = 0; i < Model.PatientRegions.Count; i++)
+                                    {
+                                        <option value="@Model.PatientRegions[i].Regionid">@Model.PatientRegions[i].Name</option>
+                                    }
+                                </select>
+                                <label for="floatingState">State</label>
+                            </div>
                         </div>
                     </div>
                     <div class="col-12 col-sm-6 mt-4">
@@ -256,19 +246,22 @@
                 </div>
                 <div class="row ">
                     <div class="mb-3">
-                        <input class=" col-12 form-control"asp-for="file" type="file" id="file_input_id" multiple style="opacity:0;height:0;">
+
+                        <input asp-for="PatientModel.File" class=" col-12 form-control" type="file" id="file_input_id" multiple style="opacity:0;height:0;">
+
                         <div class="input-group">
                             <input type="text" id="text_input_id" class="py-2 col-12 form-control" placeholder="Select File"
                                    style="caret-color: transparent" autocomplete="off" />
                             <span class="input-group-text" id="text_input_span_id " style="background-color: #10bce9;">
                                 <label for="file_input_id" class=" py-2 ms-1 text-white">Upload</label>
                             </span>
+
                         </div>
                     </div>
                 </div>
                 <div class="row  text-end">
                     <div class="">
-                        <button type="submit" class="m-2 btn  btn-info text-light">
+                        <button type="submit" onclick="changeCountryCode()" class="m-2 btn  btn-info text-light">
                             <span class="p-3">Submit</span>
                         </button>
                         <button type="reset" class="m-2 btn btn-outline-info">
@@ -300,10 +293,7 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-
     <script>
         window.onload = function () {
             $('#myModal').modal('show');
@@ -312,21 +302,6 @@
         function closeModal() {
             $('#myModal').modal('hide')
         }
-    </script>
-    <script>
-
-        var phoneInputField = document.querySelector("#patient-phone");
-        var phoneInput = window.intlTelInput(phoneInputField, {
-            utilsScript:
-                "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
-        });
-        phoneInputField = document.querySelector("#famfrnd-phone");
-        phoneInput = window.intlTelInput(phoneInputField, {
-            utilsScript:
-                "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
-        });
-
-
     </script>
     <script>
 
@@ -342,6 +317,32 @@
         $("#file_input_id").change(function () {
             $('#text_input_id').val(this.value.replace(/C:\\fakepath\\/i, ''))
         })
+    </script>
+    <script>
+        let phoneInputField = document.querySelector("#phone");
+        let phoneInput = window.intlTelInput(phoneInputField, {
+            utilsScript:
+                "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+            preferredCountries: ["in"],
+            separateDialCode: true,
+            initialCountry: "in"
+        });
+        let phoneInputField1 = document.querySelector("#phone1");
+        let phoneInput1 = window.intlTelInput(phoneInputField1, {
+            utilsScript:
+                "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+            preferredCountries: ["in"],
+            separateDialCode: true,
+            initialCountry: "in"
+        });
+        function changeCountryCode() {
+            let countryCode = document.getElementById("flag");
+            countryCode.value = phoneInput.getSelectedCountryData().dialCode;
+            let countryCode1 = document.getElementById("flag1");
+            countryCode1.value = phoneInput1.getSelectedCountryData().dialCode;
+
+        }
+
     </script>
 </body>
 

@@ -16,3 +16,6 @@ html {
 body {
   margin-bottom: 60px;
 }
+.iti__country-list {
+    z-index: 5;
+}

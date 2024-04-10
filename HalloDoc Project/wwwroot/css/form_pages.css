@@ -50,3 +50,6 @@ label[for="fileLoader"] {
 .t:focus-within + label {
     color: #10bce9 !important;
 }
+.iti__country-list {
+    z-index: 5;
+}
